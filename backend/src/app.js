@@ -2,7 +2,7 @@
 const express = require("express");
 const app = express();
 const userRouter = require("./controller/userRouter");
-// const battleRouter = require("./controller/battleRouter");
+const battleRouter = require("./controller/battleRouter");
 
 app.use(express.json());
 
@@ -16,7 +16,7 @@ const logger = require("./util/logger");
 const PORT = 4000;
 
 app.use("/users", userRouter);
-// app.use("/battleground", battleRouter);
+app.use("/battleground", battleRouter);
 
 
 app.listen(PORT, () => {
