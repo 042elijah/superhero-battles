@@ -1,14 +1,8 @@
 const express = require("express")
 const router = express.Router();
 
-// Account registration and login
-router.post("/register", async (req, res) => {
-    res.status(200).json({ message: `post to register endpoint reached`})
-})
+const userService = require("../service/userService")
 
-router.post("/login",  async (req, res) => {
-    res.status(200).json({ message: `post to login endpoint reached` })
-})
 
 
 
