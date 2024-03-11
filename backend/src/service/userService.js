@@ -8,8 +8,9 @@ async function registerUser(data) {
     let { username, password } = data;
     //evaluate data validity
         //data isTruthy?, username not taken?, valid format?
-    //add uuid, bcrypt password
-    //pass username & bcrypted password to DAO
+    //id = "user";
+    //bcrypt password
+    //pass username, id, & bcrypted password to DAO
     return { username, success: true, };
 }
 
@@ -62,6 +63,7 @@ async function postCustomHero(data) {
     let { username, heroData } = data;
     //heroData like { heroName, backstory, description, alignment, stats }
     //evaluate data validity
+    //id = new uuid;
     //post CustomHero to DAO to create a new CustomHero row
     return { username, success: true }
 }
