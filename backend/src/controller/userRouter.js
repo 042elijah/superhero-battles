@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router();
 const userService = require('../service/userService');
+const userService = require('../service/customHeroService');
 
 
 // Account registration and login
@@ -68,17 +69,23 @@ router.put("/:username", /*authUser,*/ async (req, res) => {
 
 // Custom user hero access and customization
 router.get("/:username/customization", async (req, res) => {
-    let recievedQuery = req.params.username;
-    res.status(200).json({ message: `get query with id: ${recievedQuery} on customization` })
+
+    const data = await userService.getCustomHero(req.params.username);
+
+    res.status(200).json({ data })
 })
 
 router.post("/:username/customization", async (req, res) => {
+
     let recievedQuery = req.params.username;
+
     res.status(200).json({ message: `post with id: ${recievedQuery} on customization` })
 })
 
 router.put("/:username/customization", async (req, res) => {
+
     const data = req.body;
+
     res.status(200).json({ message: `put with data: ${data} on customization` })
 })
 
