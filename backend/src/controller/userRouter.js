@@ -36,34 +36,34 @@ function authUser(req, res, next) {
     });
 }
 
-// Do we want to show the user profile display only if it is another user/guest and show the edit profile if it is the user with userID logged in?
-// Or do we want to just forbid access if it is anyone but userID what is logged in?
+// Do we want to show the user profile display only if it is another user/guest and show the edit profile if it is the user with username logged in?
+// Or do we want to just forbid access if it is anyone but username what is logged in?
 // User page access and editing
-router.get("/:userID", authUser, async (req, res) => {
-    let recievedQuery = req.params.userID;
+router.get("/:username", authUser, async (req, res) => {
+    let recievedQuery = req.params.username;
     // Can use req.user to access user obj when using authUser middleware
     res.status(200).json( {message: `get query with id: ${recievedQuery}`})
 })
 
-router.put("/:userID", authUser, async (req, res) => {
+router.put("/:username", authUser, async (req, res) => {
     const data = req.body;
     // Can use req.user to access user obj when using authUser middleware
-    res.status(200).json({ message: `put with data: ${data} on userID` })
+    res.status(200).json({ message: `put with data: ${data} on username` })
 })
 
 
 // Custom user hero access and customization
-router.get("/:userID/customization", async (req, res) => {
-    let recievedQuery = req.params.userID;
+router.get("/:username/customization", async (req, res) => {
+    let recievedQuery = req.params.username;
     res.status(200).json({ message: `get query with id: ${recievedQuery} on customization` })
 })
 
-router.post("/:userID/customization", async (req, res) => {
-    let recievedQuery = req.params.userID;
+router.post("/:username/customization", async (req, res) => {
+    let recievedQuery = req.params.username;
     res.status(200).json({ message: `post with id: ${recievedQuery} on customization` })
 })
 
-router.put("/:userID/customization", async (req, res) => {
+router.put("/:username/customization", async (req, res) => {
     const data = req.body;
     res.status(200).json({ message: `put with data: ${data} on customization` })
 })
