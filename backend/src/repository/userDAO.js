@@ -9,7 +9,7 @@ const {
   ScanCommand
 } = require("@aws-sdk/lib-dynamodb");
 
-const client = new DynamoDBClient({ region: "us-west-1" });
+const client = new DynamoDBClient({ region: process.env.AWS_DEFAULT_REGION || "us-east-2" });
  
 // getting the documentClient
 const documentClient = DynamoDBDocumentClient.from(client);
@@ -19,7 +19,7 @@ const userTable = "superhero-battles-db";
 async function getUser(username) {
     // return the user info
     const command = new QueryCommand({
-        TableName : userTable,
+        TableName: userTable,
         //FilterExpression: "#status = :status",
         KeyConditionExpression: "#username = :username",
         ExpressionAttributeNames: {"#username": "username"},
@@ -31,14 +31,15 @@ async function getUser(username) {
         let user = {
             username: receivedData.username,
             avatar: receivedData.avatar,
-            alignment : receivedData.alignment,
-            followers : receivedData.followers,
-            followeing : receivedData.followeing,
-            wins : receivedData.wins,
-            losses : receivedData.losses
+            alignment: receivedData.alignment,
+            followers: receivedData.followers,
+            following: receivedData.following,
+            wins: receivedData.wins,
+            losses: receivedData.losses
         }
         return user;
     } catch (error) {
+        console.error(error);
         return null;
     }
 }

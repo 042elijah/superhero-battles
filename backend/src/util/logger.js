@@ -15,7 +15,8 @@ const logger = createLogger({
 });
 
 process.on("uncaughtException", (error) => {
-    errorLogger.error(`Uncaught Exception: ${error}`);
+    // errorLogger.error(`Uncaught Exception: ${error}`);
+    console.error(error);
     process.exit(1);
 });
 

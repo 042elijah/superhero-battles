@@ -39,10 +39,13 @@ function authUser(req, res, next) {
 // Do we want to show the user profile display only if it is another user/guest and show the edit profile if it is the user with username logged in?
 // Or do we want to just forbid access if it is anyone but username what is logged in?
 // User page access and editing
-router.get("/:username", authUser, async (req, res) => {
+router.get("/:username", async (req, res) => {
     let recievedQuery = req.params.username;
     // Can use req.user to access user obj when using authUser middleware
-    res.status(200).json( {message: `get query with id: ${recievedQuery}`})
+    const { getUser } = require('../repository/userDAO');
+    const user = await getUser(req.params.username);
+    // res.status(200).json( {message: `get query with id: ${recievedQuery}`})
+    res.status(200).json({user});
 })
 
 router.put("/:username", authUser, async (req, res) => {
