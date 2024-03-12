@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router();
 const userService = require('../service/userService');
-const userService = require('../service/customHeroService');
+const customHeroService = require('../service/customHeroService');
 
 
 // Account registration and login
@@ -70,7 +70,7 @@ router.put("/:username", /*authUser,*/ async (req, res) => {
 // Custom user hero access and customization
 router.get("/:username/customization", async (req, res) => {
 
-    const data = await userService.getCustomHero(req.params.username);
+    const data = await customHeroService.getCustomHero(req.params.username);
 
     res.status(200).json({ data })
 })
