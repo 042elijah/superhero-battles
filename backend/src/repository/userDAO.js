@@ -127,7 +127,6 @@ async function updateRecord(username, outcome) {
 module.exports = {
     getRecord,
     getUser,
-    getCustomHero,
     updateInfo,
     updateRecord
 }
