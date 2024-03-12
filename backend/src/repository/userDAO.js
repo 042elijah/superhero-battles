@@ -76,40 +76,18 @@ async function getRecord(username) {
     }
 }
 
-async function getCustomHero(username) {
-    // return the custom hero info
-    const command = new QueryCommand({
-        TableName: userTable,
-        //FilterExpression: "#status = :status",
-        KeyConditionExpression: "#username = :username",
-        ExpressionAttributeNames: { "#username": "username" },
-        ExpressionAttributeValues: { ':username': username }
-    });
-    try {
-        const data = await documentClient.send(command);
-        let receivedData = data.Items[0];
-        let hero = {
-            username: receivedData.username,
-            heroName: receivedData.heroName,
-            description: receivedData.description,
-            backstory: receivedData.backstory,
-            stats: receivedData.stats
-        }
-        return hero;
-    } catch (error) {
-        return null;
-    }
-}
-
 // function that allows user change the avatar and alignment 
 async function updateInfo(username, info) {
     const updateCommand = new UpdateCommand({
-        TableName: userTable,
-        Key: { username: username },
-        UpdateExpression: "set #avatar = :avatar, alignment = :alignment",
-        ExpressionAttributeNames: { "#avatar": "avatar", "#alignment": "alignment" },
-        ExpressionAttributeValues: { ":avatar": info.avatar, ":alignment": info.alignment },
-        ReturnValues: "ALL_NEW"
+        TableName : userTable,
+        Key : {
+            username: username,
+            id: 'user'
+        },
+        UpdateExpression : "set #avatar = :avatar, #alignment = :alignment",
+        ExpressionAttributeNames : {"#avatar" : "avatar", "#alignment" : "alignment"},
+        ExpressionAttributeValues:{":avatar" : info.avatar, ":alignment" : info.alignment},
+        ReturnValues : "ALL_NEW"
     });
 
     try {
@@ -117,18 +95,9 @@ async function updateInfo(username, info) {
         //console.log(data);
         return "Update Success!";
     } catch (error) {
+        console.error(error);
         return null;
     }
-}
-
-// add player1, player2, heroList1 and heroList2
-// making new battle record
-async function updatePastBattle(params) {
-
-}
-// get a list of past battle
-async function getPastBattle(params) {
-
 }
 
 // update the battle record, increase counts of win/lose
@@ -165,7 +134,6 @@ async function updateRecord(username, outcome) {
 module.exports = {
     getRecord,
     getUser,
-    getCustomHero,
     updateInfo,
     updateRecord,
     registerUser

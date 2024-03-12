@@ -1,5 +1,8 @@
 const express = require("express")
 const router = express.Router();
+const userService = require('../service/userService');
+const customHeroService = require('../service/customHeroService');
+
 
 const userService = require("../service/userService")
 
@@ -33,35 +36,50 @@ function authUser(req, res, next) {
 // Do we want to show the user profile display only if it is another user/guest and show the edit profile if it is the user with username logged in?
 // Or do we want to just forbid access if it is anyone but username what is logged in?
 // User page access and editing
-router.get("/:username", async (req, res) => {
-    let recievedQuery = req.params.username;
+router.get("/:username", /*authUser,*/ async (req, res) => {
+    let username = req.params.username;
     // Can use req.user to access user obj when using authUser middleware
-    const { getUser } = require('../repository/userDAO');
-    const user = await getUser(req.params.username);
-    // res.status(200).json( {message: `get query with id: ${recievedQuery}`})
-    res.status(200).json({user});
+
+    // If a guest or other user is looking at someone else's profile, then call getUserAsViewer or getUserAsGuest or similar function
+    if(true) {
+        // Only send basic info to guests/other users
+        const user = await userService.getUser(username);
+        res.status(200).json({user});
+    }
+    else {
+        // Else if the owning user is looking at their own profile, then call getUserAsOwner or similar function
+    }
 })
 
-router.put("/:username", authUser, async (req, res) => {
+router.put("/:username", /*authUser,*/ async (req, res) => {
     const data = req.body;
     // Can use req.user to access user obj when using authUser middleware
-    res.status(200).json({ message: `put with data: ${data} on username` })
+
+    await userService.putUser({ username: data.username, userData: data });
+
+    res.status(200).json({ message: `put with data: ${JSON.stringify(data)} on username` })
 })
 
 
 // Custom user hero access and customization
 router.get("/:username/customization", async (req, res) => {
-    let recievedQuery = req.params.username;
-    res.status(200).json({ message: `get query with id: ${recievedQuery} on customization` })
+
+    const data = await customHeroService.getCustomHero(req.params.username);
+
+    res.status(200).json({ data })
 })
 
 router.post("/:username/customization", async (req, res) => {
+
     let recievedQuery = req.params.username;
+
     res.status(200).json({ message: `post with id: ${recievedQuery} on customization` })
 })
 
 router.put("/:username/customization", async (req, res) => {
+
     const data = req.body;
+
     res.status(200).json({ message: `put with data: ${data} on customization` })
 })
 

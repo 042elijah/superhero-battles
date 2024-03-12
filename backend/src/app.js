@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const userRouter = require("./controller/userRouter");
 const battleRouter = require("./controller/battleRouter");
+const pastbattleRouter = require("./controller/pastBattleRouter");
 const accountRouter = require("./util/accountAccess/accountRouter")
 
 app.use(express.json());
@@ -18,6 +19,8 @@ const PORT = 4000;
 
 app.use("/users", userRouter);
 app.use("/battleground", battleRouter);
+
+app.use("/pastBattle", pastbattleRouter);
 app.use(["/register", "/login"], accountRouter)
 
 
