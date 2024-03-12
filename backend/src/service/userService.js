@@ -132,7 +132,7 @@ async function postCustomHero(data) {
     if (!heroData.heroName || !heroData.backstory || !heroData.description || !heroData.alignemnt || !heroData.stats) //is there a more elegant way to do this?
         return {username, heroData, success: false, message: "heroData has empty values!"};
 
-    if (!isGoodOrEvil(heroData.alignement))
+    if (!isGoodBadOrNeutral(heroData.alignement)) //verify hero alignment is valid
         return {username, heroData, success: false, message: "heroData.alignment field must be good or evil!"};
 
     //id = new uuid;
@@ -141,7 +141,7 @@ async function postCustomHero(data) {
     //post CustomHero to DAO to create a new CustomHero row
     //let result = await userDAO.postCustomHero( username, heroData );
 
-    return { username, success: true, message: "CustomHero posted.", result }
+    return { username, success: true, message: "CustomHero posted.", result };
 }
 
 //===== Put - Modify a custom hero (can we modify custom heroes?)
@@ -163,10 +163,12 @@ async function putCustomHero(data) {
 
 
 // assistance function to determine whether an alignment field is valid
-function isGoodOrEvil(s) {
+function isGoodBadOrNeutral(s) {
     if (s === "good")
         return true;
-    else if (s === "evil")
+    else if (s === "bad")
+        return true;
+    else if (s === "neutral")
         return true;
     else
         return false;
