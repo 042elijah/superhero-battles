@@ -9,3 +9,9 @@ async function getPastBattle(username) {
         throw new Error("missing username or falsy value!")
     }
 }
+
+
+
+module.exports = {
+    getPastBattle
+}
