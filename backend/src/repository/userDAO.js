@@ -21,9 +21,9 @@ async function getUser(username) {
     const command = new QueryCommand({
         TableName: userTable,
         //FilterExpression: "#status = :status",
-        KeyConditionExpression: "#username = :username",
-        ExpressionAttributeNames: {"#username": "username"},
-        ExpressionAttributeValues: {':username': username }
+        KeyConditionExpression: "#username = :username AND #id = :user",
+        ExpressionAttributeNames: {"#username": "username", '#id': 'id' },
+        ExpressionAttributeValues: {':username': username, ':user': 'user' } // Need :user because user is reserved word in DynamoDB
     });
     try {
         const data = await documentClient.send(command);
