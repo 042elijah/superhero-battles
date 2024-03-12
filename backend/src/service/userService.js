@@ -68,7 +68,7 @@ async function postCustomHero(data) {
     return { username, success: true }
 }
 
-//===== Put - Modify a custom hero (can we modify custom heroes?)
+//===== Put - Modify a custom hero (can we modify custom heroes?)  
 async function putCustomHero(data) {
     let { username, heroData } = data;
     //heroData like { heroName, backstory, description, alignment, stats }
