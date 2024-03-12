@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
-const jwt = require('jsonwebtoken'); //open: do we want to handle auth here?
-const bcrypt = require("bcrypt");
-const { getUser } = require('../repository/userDAO');
+// const jwt = require('jsonwebtoken'); //open: do we want to handle auth here?
+// const bcrypt = require("bcrypt");
+const userDao = require('../repository/userDAO');
 
 const userDAO = require("../repository/userDAO")
 
@@ -30,8 +30,7 @@ async function loginUser(data) {
 
 
 //===== Get - Get data for a user by username
-async function getUser(data) {
-    let { username } = data;
+async function getUser(username) {
     //evaluate data validity
     /** Can/should be used during user registration as well as before attempting to retrieve user from DB (so there is consistency between username restrictions).
      * Assumes no user name can contain whitespace */
@@ -49,7 +48,7 @@ async function getUser(data) {
     
     //pass username to DAO to retrieve User
     if(validateUsername(username)) {
-        return await getUser(username);
+        return await userDao.getUser(username);
     }
 
     return {error: `Couldn't get user ${username}`};
@@ -66,6 +65,31 @@ async function putUser(data) {
     let { username, userData } = data;
     //userData like { avatar, alignment, following, followers, wins, losses }
 
+    console.log(userData);
+
+    function validateJsonNumArray(arr) {
+        let numbers;
+
+        try {
+            numbers = JSON.parse(arr);
+        } catch (error) {
+            console.error('Invalid JSON array passed with user data');
+            return false;
+        }
+
+        if(!numbers) {
+            return false;
+        }
+
+        for(var x in numbers) {
+            if(!Number(x)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // validatePutUserData will likely be moved to a separate validation script, but I am not changing the project structure without discussion first
     /**Validates user PUT data (i.e. data can be missing, but if present, it must be valid (i.e. if avatar id is present, it must be >= 0)) */
     function validatePutUserData(userData) {
@@ -76,23 +100,25 @@ async function putUser(data) {
         /* The API also includes 'neutral' heroes so we might too */
         (userData.alignment && !(userData.alignment == 'good' || userData.alignment == 'bad' || userData.alignment == 'neutral')) || 
 
-        (userData.following && Number(userData.following) < 0) || 
+        (userData.following && !validateJsonNumArray(userData.following)) || 
         
-        (userData.followers && Number(userData.followers) < 0) || 
+        (userData.followers && !validateJsonNumArray(userData.followers)) || 
         
         (userData.wins && Number(userData.wins) < 0) || 
 
         (userData.losses && Number(userData.losses) < 0)) {
+            console.log('Invalid user data');
             return false;
         }
-
+        
+        console.log('Valid user data');
         return true;
     }
 
     //evaluate data validity
     if(validatePutUserData(userData)) {
-        // No suitable method in user DAO currently
         // should consider making a putUser in user DAO that will update a user record entirely
+        userDao.updateInfo(username, userData);
     }
 
     //fork into subfuncs based on what userData is populated
