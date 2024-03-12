@@ -98,8 +98,11 @@ async function getCustomHero(username) {
 async function updateInfo(username, info) {
     const updateCommand = new UpdateCommand({
         TableName : userTable,
-        Key : {username : username},
-        UpdateExpression : "set #avatar = :avatar, alignment = :alignment",
+        Key : {
+            username: username,
+            id: 'user'
+        },
+        UpdateExpression : "set #avatar = :avatar, #alignment = :alignment",
         ExpressionAttributeNames : {"#avatar" : "avatar", "#alignment" : "alignment"},
         ExpressionAttributeValues:{":avatar" : info.avatar, ":alignment" : info.alignment},
         ReturnValues : "ALL_NEW"
@@ -110,18 +113,9 @@ async function updateInfo(username, info) {
         //console.log(data);
         return "Update Success!";
     } catch (error) {
+        console.error(error);
         return null;
     }
-}
-
-// add player1, player2, heroList1 and heroList2
-// making new battle record
-async function updatePastBattle(params) {
-    
-}
-// get a list of past battle
-async function getPastBattle(params) {
-    
 }
 
 // update the battle record, increase counts of win/lose
