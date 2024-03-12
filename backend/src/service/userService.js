@@ -1,7 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken'); //open: do we want to handle auth here?
 const bcrypt = require("bcrypt");
-const { getUser } = require('../repository/userDAO');
 
 const userDAO = require("../repository/userDAO")
 
