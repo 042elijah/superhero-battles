@@ -9,7 +9,7 @@ const {
   ScanCommand
 } = require("@aws-sdk/lib-dynamodb");
 
-const client = new DynamoDBClient({ region: process.env.AWS_DEFAULT_REGION || "us-east-2" });
+const client = new DynamoDBClient({ region: "us-east-2" });
  
 // getting the documentClient
 const documentClient = DynamoDBDocumentClient.from(client);
