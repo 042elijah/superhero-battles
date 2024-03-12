@@ -4,9 +4,6 @@ const userService = require('../service/userService');
 const customHeroService = require('../service/customHeroService');
 
 
-const userService = require("../service/userService")
-
-
 // Will move this function to wherever middlewares folder/script is created
 function authUser(req, res, next) {
     const authHeader = req.headers['authorization'];
