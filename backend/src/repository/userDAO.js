@@ -19,11 +19,11 @@ const userTable = "superhero-battles-db";
 async function getUser(username) {
     // return the user info
     const command = new QueryCommand({
-        TableName : userTable,
+        TableName: userTable,
         //FilterExpression: "#status = :status",
-        KeyConditionExpression: "#username = :username",
-        ExpressionAttributeNames: {"#username": "username"},
-        ExpressionAttributeValues: {':username': username }
+        KeyConditionExpression: "#username = :username AND #id = :user",
+        ExpressionAttributeNames: {"#username": "username", '#id': 'id' },
+        ExpressionAttributeValues: {':username': username, ':user': 'user' } // Need :user because user is reserved word in DynamoDB
     });
     try {
         const data = await documentClient.send(command);
@@ -31,14 +31,15 @@ async function getUser(username) {
         let user = {
             username: receivedData.username,
             avatar: receivedData.avatar,
-            alignment : receivedData.alignment,
-            followers : receivedData.followers,
-            followeing : receivedData.followeing,
-            wins : receivedData.wins,
-            losses : receivedData.losses
+            alignment: receivedData.alignment,
+            followers: receivedData.followers,
+            following: receivedData.following,
+            wins: receivedData.wins,
+            losses: receivedData.losses
         }
         return user;
     } catch (error) {
+        console.error(error);
         return null;
     }
 }
