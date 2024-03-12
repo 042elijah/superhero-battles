@@ -63,8 +63,6 @@ async function putUser(data) {
     let { username, userData } = data;
     //userData like { avatar, alignment, following, followers, wins, losses }
 
-    console.log(userData);
-
     function validateJsonNumArray(arr) {
         let numbers;
 
@@ -105,28 +103,24 @@ async function putUser(data) {
         (userData.wins && Number(userData.wins) < 0) || 
 
         (userData.losses && Number(userData.losses) < 0)) {
-            console.log('Invalid user data');
             return false;
         }
         
-        console.log('Valid user data');
         return true;
     }
 
     //evaluate data validity
     if(validatePutUserData(userData)) {
         // should consider making a putUser in user DAO that will update a user record entirely
-        userDao.updateInfo(username, userData);
+        await userDao.updateInfo(username, userData);
+        return { code: 200, message: 'User updated', username, success: true };
+
+    }
+    else {
+        return { code: 400, message: 'Bad request', result: {}, username, success: true };
     }
 
     //fork into subfuncs based on what userData is populated
-    // Since the PUT method should either create new or replace entirely, maybe we should replace the entire user instead of forking into many subfuncs for each user attribute
-    // i.e. On the edit user profile page, it already displays current user values, so onSubmit, it just sends the entire user record back, so whatever is changed will naturally be updated
-    // and whatever was the same will remain the same (since the whole record is overwritten, we don't need to manually check for changes)
-
-
-    //???
-    return { username, success: true };
 }
 
 

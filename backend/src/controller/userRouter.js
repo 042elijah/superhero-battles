@@ -52,9 +52,9 @@ router.put("/:username", /*authUser,*/ async (req, res) => {
     const data = req.body;
     // Can use req.user to access user obj when using authUser middleware
 
-    await userService.putUser({ username: data.username, userData: data });
-
-    res.status(200).json({ message: `put with data: ${JSON.stringify(data)} on username` })
+    const putResult = await userService.putUser({ username: data.username, userData: data });
+    
+    res.status(putResult.code).json({ message: putResult.message });
 })
 
 
