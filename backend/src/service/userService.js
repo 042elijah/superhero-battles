@@ -132,8 +132,6 @@ async function putUser(data) {
 
 
 module.exports = {
-    registerUser,
-    loginUser,
     getUser,
     putUser
 }

@@ -1,20 +1,36 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-  UpdateCommand,
-  DeleteCommand,
-  QueryCommand,
-  ScanCommand
+    DynamoDBDocumentClient,
+    GetCommand,
+    PutCommand,
+    UpdateCommand,
+    DeleteCommand,
+    QueryCommand,
+    ScanCommand
 } = require("@aws-sdk/lib-dynamodb");
 
-const client = new DynamoDBClient({ region: "us-east-2" });
- 
+const logger = require("../util/logger")
+
+const client = new DynamoDBClient( {region: "us-east-2"} );
+
 // getting the documentClient
 const documentClient = DynamoDBDocumentClient.from(client);
 
 const userTable = "superhero-battles-db";
+
+async function registerUser(userObj) {
+    const command = new PutCommand({
+        TableName: userTable,
+        Item: userObj
+    })
+
+    try {
+        const response = await documentClient.send(command)
+        return response;
+    } catch (error) {
+        logger.error(error);
+    }
+}
 
 async function getUser(username) {
     // return the user info
@@ -22,24 +38,15 @@ async function getUser(username) {
         TableName: userTable,
         //FilterExpression: "#status = :status",
         KeyConditionExpression: "#username = :username AND #id = :user",
-        ExpressionAttributeNames: {"#username": "username", '#id': 'id' },
-        ExpressionAttributeValues: {':username': username, ':user': 'user' } // Need :user because user is reserved word in DynamoDB
+        ExpressionAttributeNames: { "#username": "username", '#id': 'id' },
+        ExpressionAttributeValues: { ':username': username, ':user': 'user' } // Need :user because user is reserved word in DynamoDB
     });
     try {
         const data = await documentClient.send(command);
-        let receivedData = data.Items[0];
-        let user = {
-            username: receivedData.username,
-            avatar: receivedData.avatar,
-            alignment: receivedData.alignment,
-            followers: receivedData.followers,
-            following: receivedData.following,
-            wins: receivedData.wins,
-            losses: receivedData.losses
-        }
-        return user;
+        
+        return data;
     } catch (error) {
-        console.error(error);
+        logger.error(error);
         return null;
     }
 }
@@ -47,11 +54,11 @@ async function getUser(username) {
 async function getRecord(username) {
     // return a list of past battles
     const command = new QueryCommand({
-        TableName : userTable,
+        TableName: userTable,
         //FilterExpression: "#status = :status",
         KeyConditionExpression: "#username = :username",
-        ExpressionAttributeNames: {"#username": "username"},
-        ExpressionAttributeValues: {':username': username }
+        ExpressionAttributeNames: { "#username": "username" },
+        ExpressionAttributeValues: { ':username': username }
     });
     try {
         const data = await documentClient.send(command);
@@ -59,9 +66,9 @@ async function getRecord(username) {
         let user = {
             username: receivedData.username,
             player2: receivedData.player2,
-            heroList1 : receivedData.heroList1,
-            heroList2 : receivedData.heroList2,
-            winner : receivedData.winner
+            heroList1: receivedData.heroList1,
+            heroList2: receivedData.heroList2,
+            winner: receivedData.winner
         }
         return user;
     } catch (error) {
@@ -99,20 +106,20 @@ async function updateRecord(username, outcome) {
 
     const expression = "";
 
-    if(outcome === "win"){
+    if (outcome === "win") {
         expression = "add wins :val"
     }
-    else if(outcome === "lose"){
+    else if (outcome === "lose") {
         expression = "add losses :val"
-    } 
+    }
 
     const updateCommand = new UpdateCommand({
-        TableName : userTable,
-        Key : {username : username},
-        UpdateExpression : expression,
+        TableName: userTable,
+        Key: { username: username },
+        UpdateExpression: expression,
         //ExpressionAttributeNames : {},
-        ExpressionAttributeValues:{":val" : {"N" : "1"}},
-        ReturnValues : "ALL_NEW"
+        ExpressionAttributeValues: { ":val": { "N": "1" } },
+        ReturnValues: "ALL_NEW"
     });
 
     try {
@@ -128,5 +135,6 @@ module.exports = {
     getRecord,
     getUser,
     updateInfo,
-    updateRecord
+    updateRecord,
+    registerUser
 }

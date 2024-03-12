@@ -4,15 +4,6 @@ const userService = require('../service/userService');
 const customHeroService = require('../service/customHeroService');
 
 
-// Account registration and login
-router.post("/register", async (req, res) => {
-    res.status(200).json({ message: `post to register endpoint reached`})
-})
-
-router.post("/login",  async (req, res) => {
-    res.status(200).json({ message: `post to login endpoint reached` })
-})
-
 // Will move this function to wherever middlewares folder/script is created
 function authUser(req, res, next) {
     const authHeader = req.headers['authorization'];

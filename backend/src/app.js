@@ -4,6 +4,7 @@ const app = express();
 const userRouter = require("./controller/userRouter");
 const battleRouter = require("./controller/battleRouter");
 const pastbattleRouter = require("./controller/pastBattleRouter");
+const accountRouter = require("./util/accountAccess/accountRouter")
 
 app.use(express.json());
 
@@ -20,6 +21,7 @@ app.use("/users", userRouter);
 app.use("/battleground", battleRouter);
 
 app.use("/pastBattle", pastbattleRouter);
+app.use(["/register", "/login"], accountRouter)
 
 
 app.listen(PORT, () => {
