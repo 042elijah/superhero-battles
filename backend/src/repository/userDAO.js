@@ -69,31 +69,6 @@ async function getRecord(username) {
     }
 }
 
-async function getCustomHero(username) {
-    // return the custom hero info
-    const command = new QueryCommand({
-        TableName : userTable,
-        //FilterExpression: "#status = :status",
-        KeyConditionExpression: "#username = :username",
-        ExpressionAttributeNames: {"#username": "username"},
-        ExpressionAttributeValues: {':username': username }
-    });
-    try {
-        const data = await documentClient.send(command);
-        let receivedData = data.Items[0];
-        let hero = {
-            username: receivedData.username,
-            heroName: receivedData.heroName,
-            description : receivedData.description,
-            backstory : receivedData.backstory,
-            stats : receivedData.stats
-        }
-        return hero;
-    } catch (error) {
-        return null;
-    }
-}
-
 // function that allows user change the avatar and alignment 
 async function updateInfo(username, info) {
     const updateCommand = new UpdateCommand({
