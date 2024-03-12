@@ -175,8 +175,6 @@ function isGoodBadOrNeutral(s) {
 }
 
 module.exports = {
-    registerUser,
-    loginUser,
     getUser,
     putUser,
     getCustomHero,
