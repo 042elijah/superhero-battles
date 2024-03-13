@@ -2,7 +2,7 @@ const userService = require('../../service/userService');
 
 const userDAO = require("../../repository/userDAO");
 
-const { generateJWT, hashPassword, validatePassword } = require('../../middleware/auth');
+const { generateJWT, hashPassword, validatePassword } = require('./auth');
 
 async function dataValidation (username, password) {
     const daoData = await userDAO.getUser(username);
