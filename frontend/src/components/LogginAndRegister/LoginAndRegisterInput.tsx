@@ -8,9 +8,13 @@ function RegisterInput(props: any) {
         event.preventDefault();
         props.registerUser(username, password)
     }
+    function handleLogin(event: any) {
+        event.preventDefault();
+        props.loginUser(username, password)
+    }
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form>
             <input
                 type="text"
                 placeholder="username"
@@ -21,8 +25,8 @@ function RegisterInput(props: any) {
                 placeholder="password"
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <button type="submit">Register</button>
-            <button type="reset">Reset</button>
+            <button onClick={handleSubmit}>Register</button>
+            <button onClick={handleLogin}>Login</button>
         </form>
     );
 }
