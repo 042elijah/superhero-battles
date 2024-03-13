@@ -5,8 +5,11 @@ const accountService = require("./accountService")
 
 // Account registration and login
 router.post("/", async (req, res) => {
+
     if (req.baseUrl == "/register") {
         // registered should be true/false
+        res.setHeader("Access-Control-Allow-Origin", "*")
+        console.log(req.body)
         const registered = await accountService.registerUser(req.body);
 
         if (registered) res.status(registered[0]).json({ message: `${registered[1]}`})

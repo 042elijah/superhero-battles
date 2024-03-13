@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router();
 const userService = require('../service/userService');
 const customHeroService = require('../service/customHeroService');
-const { authUser, authUserAllowGuest, authUserOwnerPath, authUserOwnerQuery } = require('../middleware/auth');
+const { authUser, authUserAllowGuest, authUserOwnerPath, authUserOwnerQuery } = require('../util/accountAccess/auth');
 
 
 // User page access and editing

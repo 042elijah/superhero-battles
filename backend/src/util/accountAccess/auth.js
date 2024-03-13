@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const logger = require('../util/logger');
+const logger = require('../logger');
 
 const SALT_ROUNDS = 10;
 const SECRET_KEY = 'your-secret-key';
