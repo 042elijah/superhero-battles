@@ -4,48 +4,25 @@ const { v4: uuidv4 } = require('uuid');
 const userDao = require('../repository/userDAO');
 
 
-//===== Post - Register a new account
-async function registerUser(data) {
-    let { username, password } = data;
-    //evaluate data validity (should use the same validation function that is used in the get users function to maintain username restriction consistency)
-        //data isTruthy?, username not taken?, valid format?
-    //id = "user";
-    //bcrypt password
-    //pass username, id, & bcrypted password to DAO
-    return { username, success: true, };
-}
+/** Can/should be used during user registration as well as before attempting to retrieve user from DB (so there is consistency between username restrictions).
+ * Assumes no user name can contain whitespace */
+function validateUsername(username) {
+    if(!String(username) || 
+        // Regex to test for whitespace
+        (/\s/g).test(username)
+        // Other username requirements here
+        ) {
+        return false;
+    }
 
-//===== Post - Login to an account
-async function loginUser(data) {
-    let { username, password } = data;
-    //evaluate data validity
-    //bcrypt password
-    //pass username to DAO to retrieve
-    //verify password match
-    //generate jwt 
-    return { username, success: true, token: "123abc" };
+    return true;
 }
-
 
 //===== Get - Get data for a user by username
 async function getUser(username) {
     //evaluate data validity
-    /** Can/should be used during user registration as well as before attempting to retrieve user from DB (so there is consistency between username restrictions).
-     * Assumes no user name can contain whitespace */
-    function validateUsername(username) {
-        if(!String(username) || 
-            // Regex to test for whitespace
-            (/\s/g).test(username)
-            // Other username requirements here
-            ) {
-            return false;
-        }
-
-        return true;
-    }
-    
-    //pass username to DAO to retrieve User
     if(validateUsername(username)) {
+        //pass username to DAO to retrieve User
         return await userDao.getUser(username);
     }
 
@@ -127,5 +104,6 @@ async function putUser(data) {
 
 module.exports = {
     getUser,
-    putUser
+    putUser,
+    validateUsername
 }
