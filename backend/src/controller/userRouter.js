@@ -58,6 +58,7 @@ router.put("/:username", authUserOwnerPath, async (req, res) => {
 
 
 // Custom user hero access and customization
+//needs: username param
 router.get("/:username/customization", async (req, res) => {
 
     const data = await customHeroService.getCustomHero(req.params.username);
@@ -65,18 +66,12 @@ router.get("/:username/customization", async (req, res) => {
     res.status(200).json({ data })
 })
 
-router.post("/:username/customization", async (req, res) => {
-
-    let recievedQuery = req.params.username;
-
-    res.status(200).json({ message: `post with id: ${recievedQuery} on customization` })
-})
-
+//needs: username param, complete hero{} in body
 router.put("/:username/customization", async (req, res) => {
 
-    const data = req.body;
+    let result = await customHeroService.putCustomHero({username: req.params.username, ...req.body});
 
-    res.status(200).json({ message: `put with data: ${data} on customization` })
+    res.status(200).json({ result })
 })
 
 
