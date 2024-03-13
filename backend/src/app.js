@@ -6,6 +6,8 @@ const battleRouter = require("./controller/battleRouter");
 const pastbattleRouter = require("./controller/pastBattleRouter");
 const accountRouter = require("./util/accountAccess/accountRouter")
 
+
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use((req, res, next) => {

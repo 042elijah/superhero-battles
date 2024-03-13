@@ -1,8 +1,11 @@
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken'); //open: do we want to handle auth here?
 const bcrypt = require("bcrypt");
+const userService = require('../../service/userService');
 
-const userDAO = require("../../repository/userDAO")
+const userDAO = require("../../repository/userDAO");
+
+const { SECRET_KEY } = require('../../middleware/auth');
 
 async function dataValidation (username, password) {
     const daoData = await userDAO.getUser(username);
@@ -58,12 +61,48 @@ async function registerUser(data) {
 //===== Post - Login to an account
 async function loginUser(data) {
     let { username, password } = data;
+
     //evaluate data validity
+    if(!userService.validateUsername(username)) {
+        return null;
+    }
+
     //bcrypt password
+    // Passwords are not hashed in the DB so cannot use/don't need bcrypt so far. If we want to hash passwords (which is probably a requirement, we need to hash during 
+    // account registration)
+    
     //pass username to DAO to retrieve
+    const dbResponse = await userService.getUser(username);
+    const user = dbResponse.Items && dbResponse.Items[0];
+
     //verify password match
-    //generate jwt 
-    return { username, success: true, token: "123abc" };
+    if(!(password === user.password)) {
+        return null;
+    }
+    // Use this if/when we have hashed passwords in the DB
+    // // bcrypt.compare takes plaintext as first param and hashed as second param
+    // if(!user || !(await bcrypt.compare(password, user.password))) {
+    //     res.status(401).json('Invalid credentials');
+    // }
+
+    //generate jwt
+    else {
+        let payload = {
+            username: user.username,
+            alignment: user.alignment,
+            avatar: user.avatar,
+        };
+
+        // Make sure token created for the presentation has enough lifetime to last for the duration of the presentation
+        let signOptions = {
+            expiresIn: '25m'
+        };
+
+        //generate JWT
+        const token = jwt.sign(payload, SECRET_KEY, signOptions);
+
+        return { success: true, user: payload, token };
+    }
 }
 
 module.exports = {
