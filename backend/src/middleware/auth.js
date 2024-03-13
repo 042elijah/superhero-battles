@@ -106,7 +106,7 @@ async function generateJWT(payload) {
 }
 
 module.exports = {
-    generateJWT, // Should not be exported, will remove when the func that uses it is moved here
+    generateJWT, 
     authUser,
     authUserAllowGuest, 
     authUserOwnerPath,
