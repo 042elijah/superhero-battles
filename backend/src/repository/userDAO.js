@@ -99,7 +99,7 @@ async function updateInfo(username, info) {
     const updateCommand = new UpdateCommand({
         TableName : userTable,
         Key : {username : username},
-        UpdateExpression : "set #avatar = :avatar, alignment = :alignment",
+        UpdateExpression : "set #avatar = :avatar, #alignment = :alignment",
         ExpressionAttributeNames : {"#avatar" : "avatar", "#alignment" : "alignment"},
         ExpressionAttributeValues:{":avatar" : info.avatar, ":alignment" : info.alignment},
         ReturnValues : "ALL_NEW"

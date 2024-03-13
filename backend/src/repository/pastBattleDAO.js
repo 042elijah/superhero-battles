@@ -7,7 +7,7 @@ const {
   DeleteCommand,
   QueryCommand,
   ScanCommand
-} = require("@aws-sdk/lib-dynamodb")
+} = require("@aws-sdk/lib-dynamodb");
 
 const client = new DynamoDBClient({ region: "us-east-2" });
  
