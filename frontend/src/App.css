@@ -1,38 +1,126 @@
-.App {
-  text-align: center;
+@media (prefers-reduced-motion: no-preference) {
+  .hit-anim {
+    animation: hit-anim-keyframes 1s linear;
+    animation-iteration-count: 1;
+  }
 }
 
-.App-logo {
-  height: 40vmin;
+@keyframes hit-anim-keyframes {
+  0% {
+    transform: translateX(0%);
+  }
+  
+  15% {
+    transform: translateX(-2.5%);
+  }
+  
+  30% {
+    transform: translateX(0%);
+  }
+  
+  45% {
+    transform: translateX(1%);
+  }
+  
+  60% {
+    transform: translateX(0%);
+  }
+}
+
+.prevent-select {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.hero-card {
+  position: relative;
+  box-sizing: border-box;
+  text-align: center;
+  width: 300px;
+  height: 400px;
+  /* border: 10px solid red; */
+  padding-top: 5px;
+  padding-bottom: 0px;
+  margin: 80px 30px;
+  /* width: 220px; */
+  /* background-color: blue; */
+
+  transition: all 0.3s ease;
+
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.hero-card:hover {
+  transform: scale(1.05);
+}
+
+.hero-card-image {
+  border-radius: 10px;
+  box-shadow: 15px 15px 10px 5px rgba(197, 197, 197, 0.93);
+  /* border: 7px solid rgb(0, 3, 28); */
+  border: 8px solid rgb(181, 140, 78);
+  /* outline: 12px solid rgb(146, 237, 255); */
+  /* border-image: linear-gradient(#f6b73c, #4d9f0c) 30; */
+  /* width: 200px; */
+  padding: 0;
+  
+  /* new frame stuff */
+  position: absolute;
+  top: 3%;
+  left: 3.5%;
+  width: 88.5%;
+  height: 88.5%;
+  object-fit: cover;
+
+  /* top: 10px;
+  left: 10px;
+  width: 88.5%; */
+}
+
+.hero-card-overlay {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 101%;
+}
+
+.stats-container {
+  position: absolute;
+  top: 0%;
+  left: 0.3%;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+}
+
+.hero-name {
+  position: absolute;
+  top: 53%;
+  width: 100%;
+  font-size: 190%;
+  text-shadow: 0px 0px 20px black;
+  font-weight: bold;
   color: white;
+  margin-bottom: 0;
 }
 
-.App-link {
-  color: #61dafb;
+.statdiv {
+  position: absolute;
+  font-size: 30px;
+  width: max-content;
+
+  top: 74%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.hero-stat {
+  left: 50%;
+  transform: translate(-50%, 0);
+  font-size: 30px;
+  text-shadow: 0px 0px 20px black;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0;
 }
