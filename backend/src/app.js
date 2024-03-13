@@ -4,7 +4,10 @@ const app = express();
 const userRouter = require("./controller/userRouter");
 const battleRouter = require("./controller/battleRouter");
 const pastbattleRouter = require("./controller/pastBattleRouter");
-const accountRouter = require("./util/accountAccess/accountRouter")
+const accountRouter = require("./util/accountAccess/accountRouter");
+const cors = require('cors');
+
+app.use(cors())
 
 
 app.use(express.urlencoded({ extended: false }));
