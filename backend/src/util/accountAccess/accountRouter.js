@@ -1,4 +1,4 @@
-const express = require("express")
+const express = require("express");
 const router = express.Router();
 
 const accountService = require("./accountService")
@@ -14,11 +14,15 @@ router.post("/", async (req, res) => {
     }
     if (req.baseUrl == "/login") {
         const loggedIn = await accountService.loginUser(req.body);
-
-        if (loggedIn) res.status(200).json({ message: `Login Successful` })
-        else res.status(400).json({ message: "Error logging in", receivedData: req.body }) 
+        
+        if (loggedIn) {
+            const { success, user, token } = loggedIn;
+            res.json({ message: `Signed in as ${user.username}`, token, user });
+        }
+        else {
+            res.status(400).json({ message: "Error logging in" });
+        }
     }
-
 })
 
 
