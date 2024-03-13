@@ -1,14 +1,18 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
+import GetAllImgs from './components/GetAllImgs';
 import RegisterContainer from './components/LogginAndRegister/LoginAndRegisterContainer';
 
 
 function App() {
   return (
-    <div className="App">
-      <RegisterContainer/>
-    </div>
+    <div>
+    <RegisterContainer />
+    <Routes>
+      <Route path='/heroes' element={<GetAllImgs />}></Route>
+    </Routes>
+  </div>
   );
 }
 
