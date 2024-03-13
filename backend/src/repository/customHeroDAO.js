@@ -14,14 +14,14 @@ const client = new DynamoDBClient({ region: "us-east-2" });
 // getting the documentClient
 const documentClient = DynamoDBDocumentClient.from(client);
 
-const userTable = "superhero-battles-db";
+const TableName = "superhero-battles-db";
 
 
-// return the custom hero info
+// get the custom hero info
 async function getCustomHero (username) {
 
     const command = new QueryCommand({
-        TableName : userTable,
+        TableName,
         //FilterExpression: "#status = :status",
         KeyConditionExpression: "#username = :username",
         ExpressionAttributeNames: {"#username": "username"},
@@ -43,17 +43,44 @@ async function getCustomHero (username) {
     }
 }
 
-//add new customHero
-async function postCustomHero () {
+//modify or add customHero
+//requires id!
+async function updateCustomHero (hero) {
+
+    const heroKeys = Object.keys(hero).filter(k => k !== "username" && k !== "id");
+
+    const params = { //copied & adapted from https://dev.to/dvddpl/dynamodb-dynamic-method-to-insert-or-edit-an-item-5fnh
+        TableName,
+        UpdateExpression: `SET ${heroKeys.map((k, index) => `#field${index} = :value${index}`).join(', ')}`,
+        ExpressionAttributeNames: heroKeys.reduce((accumulator, k, index) => ({
+            ...accumulator,
+            [`#field${index}`]: k
+        }), {}),
+        ExpressionAttributeValues: heroKeys.reduce((accumulator, k, index) => ({
+            ...accumulator,
+            [`:value${index}`]: hero[k]
+        }), {}),
+        Key: {
+            username: hero.username,
+            id: hero.id
+        },
+        ReturnValues: 'ALL_NEW'
+    };
+
+    const command = new UpdateCommand(params);
+
+    try {
+        const result = await documentClient.send(command);
+        return result;
+    }
+    catch (err) {
+        console.error(err);
+    }
+    return null;
 
 }
 
-//modify customHero
-async function putCustomHero () {
-
-}
-
-//util: finds the first customHero in query response
+//UTILITY: finds the first customHero in an array of a query response
 function findCustomHero (data) {
     
     for ( let i = 0; i < data.length; i++ ) {     //iterate through returned Items,
@@ -68,6 +95,29 @@ function findCustomHero (data) {
 
 module.exports = {
     getCustomHero,
-    postCustomHero,
-    putCustomHero
+    //postCustomHero,
+    updateCustomHero
+}
+
+
+
+
+
+//DEPRECATED
+//add new customHero
+async function postCustomHero (hero) {
+
+    const command = new PutCommand({
+        TableName,
+        Item: hero
+    });
+
+    try {
+        const result = await documentClient.send(command);
+        return result;
+    }
+    catch (err) {
+        console.error(err);
+    }
+    return null;
 }
