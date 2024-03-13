@@ -81,11 +81,36 @@ async function authUserWithGuestStatus(req, res, next, allowGuest) {
     }
 }
 
+async function hashPassword(password) {
+    password = await bcrypt.hash(password, SALT_ROUNDS);
+    // returns hashed password
+    return password;
+}
+
+async function validatePassword(password, user){
+    const validity = await bcrypt.compare(password, user.password);
+    // returns true or false
+    return validity;
+}
+
+async function generateJWT(payload) {
+    // Make sure token created for the presentation has enough lifetime to last for the duration of the presentation
+    let signOptions = {
+        expiresIn: '25m'
+    };
+
+    //generate JWT
+    const token = jwt.sign(payload, SECRET_KEY, signOptions);
+
+    return token;
+}
+
 module.exports = {
-    SALT_ROUNDS, // Should not be exported, will remove when the func that uses it is moved here
-    SECRET_KEY, // Should not be exported, will remove when the func that uses it is moved here
+    generateJWT, // Should not be exported, will remove when the func that uses it is moved here
     authUser,
     authUserAllowGuest, 
     authUserOwnerPath,
-    authUserOwnerQuery
+    authUserOwnerQuery,
+    hashPassword,
+    validatePassword
 };
