@@ -14,7 +14,7 @@ const client = new DynamoDBClient({ region: "us-east-2" });
 // getting the documentClient
 const documentClient = DynamoDBDocumentClient.from(client);
 
-async function getPastBattle(username) {
+async function getPastBattleByUsername(username) {
     const command = new QueryCommand({
         TableName : "superhero-battles-db",
         //FilterExpression: "#status = :status",
@@ -47,6 +47,25 @@ async function getPastBattle(username) {
     }
 }
 
+async function getPastBattleByBattleID(username, battleID) {
+    const command = new GetCommand({
+        TableName : "superhero-battles-db",
+        Key : {
+            username : username,
+            id : battleID
+        }
+    });
+    try {
+        const data = await documentClient.send(command);
+        
+        return data.Item;
+    } catch (error) {
+        console.log(error);
+        throw new Error("Error on pastBattleDAO!");     
+    }
+}
+
 module.exports = {
-    getPastBattle
+    getPastBattleByUsername,
+    getPastBattleByBattleID
 }
