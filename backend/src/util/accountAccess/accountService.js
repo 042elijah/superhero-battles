@@ -4,6 +4,8 @@ const userDAO = require("../../repository/userDAO");
 
 const { generateJWT, hashPassword, validatePassword } = require('./auth');
 
+const validate = require('../validate');
+
 async function dataValidation (username, password) {
     const daoData = await userDAO.getUser(username);
     let dataChecks = {
@@ -60,7 +62,7 @@ async function loginUser(data) {
     let { username, password } = data;
 
     //evaluate data validity
-    if(!userService.validateUsername(username)) {
+    if(!validate.validateUsername(username)) {
         return null;
     }
     
