@@ -27,11 +27,15 @@ async function dataValidation (username, password) {
 }
 
 //===== Post - Register a new account
+//expects data like {username: String, password: String}
 async function registerUser(data) {
-    let username = data.username
-    let password = data.password
-    let dataCheck = await dataValidation(username, password)
 
+    if (!("username" in data) || !("password" in data)) return [400, "Invalid request body"];
+
+    let username = data.username;
+    let password = data.password;
+    let dataCheck = await dataValidation(username, password);
+    
     if (dataCheck.exists == true) return [401, "Username already in use"];
     
     if (dataCheck.password == false) return [401, "Invalid password. Must be at least 5 characters with no spaces"]
@@ -58,7 +62,11 @@ async function registerUser(data) {
 }
 
 //===== Post - Login to an account
+//expects data like {username: String, password: String}
 async function loginUser(data) {
+    
+    if (!("username" in data) || !("password" in data)) return [400, "Invalid request body"];
+
     let { username, password } = data;
 
     //evaluate data validity
