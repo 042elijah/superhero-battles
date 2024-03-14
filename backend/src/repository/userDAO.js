@@ -55,7 +55,38 @@ async function getUser(username) {
     }
 }
 
-async function getRecord(username) {
+async function getAllUsers() {
+
+    const command = new QueryCommand({  //returns all users
+        TableName,
+        IndexName: "id-index",
+        KeyConditionExpression: "#key = :value",
+        ExpressionAttributeNames: { "#key": "id" },
+        ExpressionAttributeValues: { ":value": 'user' } 
+    });
+
+    try
+    {
+        const data = await documentClient.send(command);
+
+        if (data.Items.length == 0)
+        {
+            logger.error(`Failed to get any users!`);
+            console.error(`Failed to get any users!`);
+            return null;
+        }
+
+        return data;
+    } 
+    catch (err) 
+    {
+        logger.error(`Error getting all users: ${err}`);
+        console.error(`Error getting all users: ${err}`);
+    }
+    return null;
+}
+
+/*async function getRecord(username) {
     // return a list of past battles
     const command = new QueryCommand({
         TableName,
@@ -66,7 +97,7 @@ async function getRecord(username) {
     });
     try {
         const data = await documentClient.send(command);
-        let receivedData = data.Items[0];
+        let receivedData = data.Items[0]; //does this code actually work?
         let user = {
             username: receivedData.username,
             player2: receivedData.player2,
@@ -80,7 +111,7 @@ async function getRecord(username) {
         console.error(err);
         return null;
     }
-}
+}*/
 
 // function to update user data
 // modify any/all user fields, except username, password, id. all fields optional in req.
@@ -157,7 +188,7 @@ async function updateRecord(username, outcome) {
 
     const updateCommand = new UpdateCommand({
         TableName,
-        Key: { username: username },
+        Key: { username: username, id: 'user' },
         UpdateExpression: expression,
         //ExpressionAttributeNames : {},
         ExpressionAttributeValues: { ":val": { "N": "1" } },
@@ -176,8 +207,9 @@ async function updateRecord(username, outcome) {
 }
 
 module.exports = {
-    getRecord,
+    //getRecord,
     getUser,
+    getAllUsers,
     updateInfo,
     updateRecord,
     registerUser
