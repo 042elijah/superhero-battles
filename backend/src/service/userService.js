@@ -17,6 +17,10 @@ async function getUser(username) {
     // return { username, success: true, data: {alignment: "some user data in an object"} };
 }
 
+async function getAllUsers() {
+    return await userDao.getAllUsers();
+}  
+
 //===== Put - Modify a user's account data
 // modify any/all user fields, except username, password, id. all fields optional in req.
 async function putUser(data) {
@@ -39,5 +43,6 @@ async function putUser(data) {
 
 module.exports = {
     getUser,
+    getAllUsers,
     putUser
 }

@@ -5,6 +5,25 @@ const customHeroService = require('../service/customHeroService');
 const { authUser, authUserAllowGuest, authUserOwnerPath, authUserOwnerQuery } = require('../util/accountAccess/auth');
 
 
+
+router.get("/usersearch", authUserAllowGuest, async (req, res) => {
+
+    let dbResponse = await userService.getAllUsers();
+
+    if (!dbResponse || !("Items" in dbResponse) || !dbResponse.Items[0]) {
+
+        res.status(400).json({ message: 'Couldnt find any users at all??', dbResponse });
+
+    } else {
+
+        for (let i = 0; i < dbResponse.Items.length; i++) {
+            if (dbResponse.Items[i] && ("password" in dbResponse.Items[i])) delete dbResponse.Items[i].password;
+        }
+        
+        res.status(200).json({ message: 'Got all users', users: dbResponse.Items });
+    }
+});
+
 // Get User page for access and editing
 router.get("/:username", authUserAllowGuest, async (req, res) => {
     let username = req.params.username;
