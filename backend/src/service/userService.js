@@ -18,11 +18,7 @@ async function getUser(username) {
 }
 
 //===== Put - Modify a user's account data
-/*
-    lots of things can be classed under "putUser". 
-    Should consider having this func fork into subfuncs based on what's being modified.
-    Or else have multiple funcs that the router can call based on params.
-*/
+// modify any/all user fields, except username, password, id. all fields optional in req.
 async function putUser(data) {
     let { username, userData } = data;
     //userData like { avatar, alignment, following, followers, wins, losses }

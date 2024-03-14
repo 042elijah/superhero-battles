@@ -82,8 +82,8 @@ async function getRecord(username) {
     }
 }
 
-// function that allows user change the avatar and alignment 
-//requires: user object
+// function to update user data
+// modify any/all user fields, except username, password, id. all fields optional in req.
 async function updateInfo(user) {
 
     const userKeys = Object.keys(user).filter(k => k !== "username" && k !== "id");
