@@ -5,45 +5,53 @@ const customHeroService = require('../service/customHeroService');
 const { authUser, authUserAllowGuest, authUserOwnerPath, authUserOwnerQuery } = require('../util/accountAccess/auth');
 
 
-// User page access and editing
+// Get User page for access and editing
 router.get("/:username", authUserAllowGuest, async (req, res) => {
     let username = req.params.username;
     let dbResponse = await userService.getUser(username);
-    let user = dbResponse.Items && dbResponse.Items[0];
-    delete user.password;
 
-    // authUserAllowGuest modifies the req
-    // if user is logged in, it adds a user property to the req obj
-    // if user is not logged in, it adds an isGuest property to the req obj (with value of true; isGuest=false should not have any effect and 
-    // should not trick the system into allowing a guest into someone's account...)
-    
-    // If user is a guest
-    if(req.isGuest == true) {
-        res.status(200).json({ message: 'Viewing user profile as guest', userStatus: 'guest', user });
+    if (!dbResponse || !("Items" in dbResponse) || !dbResponse.Items[0]) {
+        res.status(400).json({ message: 'Couldnt find user', userStatus: 'guest', dbResponse });
+    } else {
 
-        // Should give different/limited data
-        // Should NOT give option to battle
-        // Should NOT give option to edit
-    }
-    // Else if a valid user is logged in
-    else if(req.user) {
-        // If a different user is looking at another user's profile
-        if(req.user.username != username) {
-            res.status(200).json({ message: 'Viewing as other user', userStatus: 'otheruser',  user });
+        let user = dbResponse.Items && dbResponse.Items[0];
+        if (user && ("password" in user)) delete user.password;
 
-            // Give some basic user data
-            // Give option to battle this user (handled in frontend, but can give a flag to signal this option)
+        // authUserAllowGuest modifies the req
+        // if user is logged in, it adds a user property to the req obj
+        // if user is not logged in, it adds an isGuest property to the req obj (with value of true; isGuest=false should not have any effect and 
+        // should not trick the system into allowing a guest into someone's account...)
+        
+        // If user is a guest
+        if(req.isGuest == true) {
+            res.status(200).json({ message: 'Viewing user profile as guest', userStatus: 'guest', user });
+
+            // Should give different/limited data
+            // Should NOT give option to battle
+            // Should NOT give option to edit
         }
-        // Else if a user is looking at their own profile
-        else {
-            res.status(200).json({ message: 'Viewing as owning user', userStatus: 'owner',  user });
+        // Else if a valid user is logged in
+        else if(req.user) {
+            // If a different user is looking at another user's profile
+            if(req.user.username != username) {
+                res.status(200).json({ message: 'Viewing as other user', userStatus: 'otheruser',  user });
 
-            // Give most user data (except password)
-            // Give option for edit profile (probably handled in frontend, but can add a flag to tell the frontend to display edit profile page)
+                // Give some basic user data
+                // Give option to battle this user (handled in frontend, but can give a flag to signal this option)
+            }
+            // Else if a user is looking at their own profile
+            else {
+                res.status(200).json({ message: 'Viewing as owning user', userStatus: 'owner',  user });
+
+                // Give most user data (except password)
+                // Give option for edit profile (probably handled in frontend, but can add a flag to tell the frontend to display edit profile page)
+            }
         }
     }
 })
 
+//modifies an existing user
+//body like { avatar, alignment, following, followers, wins, losses }
 router.put("/:username", authUserOwnerPath, async (req, res) => {
     let data = req.body;
     let username = req.params.username;
