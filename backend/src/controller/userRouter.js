@@ -51,7 +51,7 @@ router.get("/:username", authUserAllowGuest, async (req, res) => {
 })
 
 //modifies an existing user
-//body like { avatar, alignment, following, followers, wins, losses }
+//body like { avatar, alignment, following, followers, wins, losses }. All optional
 router.put("/:username", authUserOwnerPath, async (req, res) => {
     let data = req.body;
     let username = req.params.username;
