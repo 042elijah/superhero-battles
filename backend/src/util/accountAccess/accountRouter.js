@@ -6,6 +6,7 @@ const accountService = require("./accountService")
 // Account registration and login
 router.post("/", async (req, res) => {
 
+    //requires body like {username: String, password: String}
     if (req.baseUrl == "/register") {
         // registered should be true/false
         res.setHeader("Access-Control-Allow-Origin", "*")
@@ -15,6 +16,8 @@ router.post("/", async (req, res) => {
         if (registered) res.status(registered[0]).json({ message: `${registered[1]}`})
         else res.status(400).json({ message: "Error with account creation", receivedData: req.body })
     }
+    
+    //requires body like {username: String, password: String}
     if (req.baseUrl == "/login") {
         const loggedIn = await accountService.loginUser(req.body);
         
