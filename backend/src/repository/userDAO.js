@@ -16,26 +16,29 @@ const client = new DynamoDBClient( {region: "us-east-2"} );
 // getting the documentClient
 const documentClient = DynamoDBDocumentClient.from(client);
 
-const userTable = "superhero-battles-db";
+const TableName = "superhero-battles-db";
+
 
 async function registerUser(userObj) {
     const command = new PutCommand({
-        TableName: userTable,
+        TableName,
         Item: userObj
     })
 
     try {
-        const response = await documentClient.send(command)
-        return response;
-    } catch (error) {
-        logger.error(error);
+        const result = await documentClient.send(command)
+        return result;
+    } catch (err) {
+        logger.error(err);
+        console.error(err);
+        return null;
     }
 }
 
 async function getUser(username) {
     // return the user info
     const command = new QueryCommand({
-        TableName: userTable,
+        TableName,
         //FilterExpression: "#status = :status",
         KeyConditionExpression: "#username = :username AND #id = :user",
         ExpressionAttributeNames: { "#username": "username", '#id': 'id' },
@@ -45,8 +48,9 @@ async function getUser(username) {
         const data = await documentClient.send(command);
         
         return data;
-    } catch (error) {
-        logger.error(error);
+    } catch (err) {
+        logger.error(err);
+        console.error(err);
         return null;
     }
 }
@@ -54,7 +58,7 @@ async function getUser(username) {
 async function getRecord(username) {
     // return a list of past battles
     const command = new QueryCommand({
-        TableName: userTable,
+        TableName,
         //FilterExpression: "#status = :status",
         KeyConditionExpression: "#username = :username",
         ExpressionAttributeNames: { "#username": "username" },
@@ -71,13 +75,51 @@ async function getRecord(username) {
             winner: receivedData.winner
         }
         return user;
-    } catch (error) {
+    } catch (err) {
+        logger.error(err);
+        console.error(err);
         return null;
     }
 }
 
 // function that allows user change the avatar and alignment 
-async function updateInfo(username, info) {
+//requires: user object
+async function updateInfo(user) {
+
+    const userKeys = Object.keys(user).filter(k => k !== "username" && k !== "id");
+
+    const params = { //copied & adapted from https://dev.to/dvddpl/dynamodb-dynamic-method-to-insert-or-edit-an-item-5fnh
+        TableName,
+        UpdateExpression: `SET ${userKeys.map((k, index) => `#field${index} = :value${index}`).join(', ')}`,
+        ExpressionAttributeNames: userKeys.reduce((accumulator, k, index) => ({
+            ...accumulator,
+            [`#field${index}`]: k
+        }), {}),
+        ExpressionAttributeValues: userKeys.reduce((accumulator, k, index) => ({
+            ...accumulator,
+            [`:value${index}`]: user[k]
+        }), {}),
+        Key: {
+            username: user.username,
+            id: "user"
+        },
+        ReturnValues: 'ALL_NEW'
+    };
+
+    const command = new UpdateCommand(params);
+
+    try {
+        const result = await documentClient.send(command);
+        return result;
+    }
+    catch (err) {
+        logger.error(err);
+        console.error(err);
+        return null;
+    }
+}
+
+/*async function updateInfo(username, info) {
     const updateCommand = new UpdateCommand({
         TableName : userTable,
         Key : {
@@ -98,7 +140,7 @@ async function updateInfo(username, info) {
         console.error(error);
         return null;
     }
-}
+}*/
 
 // update the battle record, increase counts of win/lose
 // the outcome should be a string that indicates win or lose
@@ -114,7 +156,7 @@ async function updateRecord(username, outcome) {
     }
 
     const updateCommand = new UpdateCommand({
-        TableName: userTable,
+        TableName,
         Key: { username: username },
         UpdateExpression: expression,
         //ExpressionAttributeNames : {},
@@ -123,10 +165,12 @@ async function updateRecord(username, outcome) {
     });
 
     try {
-        const data = await documentClient.send(updateCommand);
+        const result = await documentClient.send(updateCommand);
         //console.log(data);
-        return "Update Success!";
-    } catch (error) {
+        return result;
+    } catch (err) {
+        logger.error(err);
+        console.error(err);
         return null;
     }
 }

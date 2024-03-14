@@ -30,15 +30,13 @@ async function putUser(data) {
     //evaluate data validity
     if(validate.validatePutUserData(userData)) {
         // should consider making a putUser in user DAO that will update a user record entirely
-        await userDao.updateInfo(username, userData);
-        return { code: 200, message: 'User updated', username, success: true };
+        let result = await userDao.updateInfo({username, ...userData});
+        return { code: 200, message: 'User updated', username, success: true, result };
 
     }
     else {
-        return { code: 400, message: 'Bad request', result: {}, username, success: true };
+        return { code: 400, message: 'Bad request', result: {}, username, success: false };
     }
-
-    //fork into subfuncs based on what userData is populated
 }
 
 
