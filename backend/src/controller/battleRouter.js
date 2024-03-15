@@ -4,22 +4,22 @@ const router = express.Router();
 const pastBattleService = require("../service/pastBattleService");
 
 
-router.post("/", async (req, res) => {
-    res.status(200).json({ message: `post to battleground endpoint reached` })
-})
+// router.post("/", async (req, res) => {
+//     res.status(200).json({ message: `post to battleground endpoint reached` })
+// })
 
-router.get("/", async (req, res) => {
-    res.status(200).json({ message: `get battleground endpoint reached` })
-})
+// router.get("/", async (req, res) => {
+//     res.status(200).json({ message: `get battleground endpoint reached` })
+// })
 
 router.get("/leaderboard", async (req, res) => {
     res.status(200).json({ message: `get battleground leaderboard endpoint reached` })
 })
 
-router.get("/battles/:battleID", async (req, res) => {
-    let recievedQuery = req.params.battleID;
-    res.status(200).json({ message: `get query from battles with id: ${recievedQuery}` })
-})
+// router.get("/battles/:battleID", async (req, res) => {
+//     let recievedQuery = req.params.battleID;
+//     res.status(200).json({ message: `get query from battles with id: ${recievedQuery}` })
+// })
 
 router.post('/battle', async (req, res) => {
     // let battle = await pastBattleService.simulateBattle({ challenger: 'K00Lguy', challengerTeam: '[5,6,7]' }, { opponent: 'johndoe1', opponentTeam: '[8,10,11]' });
