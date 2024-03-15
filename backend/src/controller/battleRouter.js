@@ -21,6 +21,18 @@ router.get("/leaderboard", async (req, res) => {
 //     res.status(200).json({ message: `get query from battles with id: ${recievedQuery}` })
 // })
 
+router.post('/battle', async (req, res) => {
+    // let battle = await pastBattleService.simulateBattle({ challenger: 'K00Lguy', challengerTeam: '[5,6,7]' }, { opponent: 'johndoe1', opponentTeam: '[8,10,11]' });
+
+    let data = req.body;
+
+    const { challenger, challengerTeam } = data;
+    const { opponent, opponentTeam } = data;
+    let battle = await pastBattleService.simulateBattle({ challenger, challengerTeam }, { opponent, opponentTeam });
+    
+    res.json(battle);
+});
+
 // get the past battle records by username
 router.get("/record/:username", async(req, res) => {
     
