@@ -5,11 +5,11 @@ const accountService = require("./accountService")
 
 // Account registration and login
 router.post("/", async (req, res) => {
-
+    res.setHeader("Access-Control-Allow-Origin", "*")
     //requires body like {username: String, password: String}
     if (req.baseUrl == "/register") {
         // registered should be true/false
-        res.setHeader("Access-Control-Allow-Origin", "*")
+        
         console.log(req.body)
         const registered = await accountService.registerUser(req.body);
 
