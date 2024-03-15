@@ -18,3 +18,7 @@ async function getApiHero(id) {
 
     return hero;
 }
+
+module.exports = {
+    getApiHero
+};

@@ -2,6 +2,20 @@
 
 const logger = require("./logger");
 
+function validateNumArray(arr) {
+    if(!arr) {
+        return false;
+    }
+    
+    for(var x of arr) {
+        if(!Number(x)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function validateJsonNumArray(arr) {
     let numbers;
 
@@ -102,6 +116,7 @@ function validateHero(hero) {
 }
 
 module.exports = {
+    validateNumArray,
     validateJsonNumArray, 
     validateUsername,
     validatePutUserData,

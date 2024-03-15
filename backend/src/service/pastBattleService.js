@@ -1,8 +1,13 @@
-const apiHeroDao = require('../repository/apiHeroDAO');
-const customHeroDao = require('../repository/customHeroDAO');
+// const apiHeroDao = require('../repository/apiHeroDAO');
+// const customHeroDao = require('../repository/customHeroDAO');
 const pastBattleDAO = require("../repository/pastBattleDAO");
 const userDao = require('../repository/userDAO');
 const validate = require('../util/validate');
+
+const apiHeroService = require('../service/apiHeroService');
+const customHeroService = require('../service/customHeroService');
+const userService = require('../service/userService');
+
 
 const ALIGNMENT_BONUS_PERCENT = 15;
 
@@ -38,32 +43,21 @@ async function getPastBattleByBattleID(username, battleID) {
  * @returns Array of steps to reproduce this battle
  */
 async function simulateBattle({ challenger, challengerTeam }, { opponent, opponentTeam }) {
-    // remove vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    // const { simulateBattle } = require('./service/pastBattleService');
-    // let battle = simulateBattle(
-    //     {challenger: 'K00Lguy', challengerTeam: '[5,6,7]'}, 
-    //     {opponent: 'K00Lguy', opponentTeam: '[8,9,10]'})
-    //         .then(console.log)
-    //         .catch(console.log);
-    // // console.log(battle);
-    // remove ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-
     if(!validate.validateUsername(challenger) || !validate.validateUsername(opponent)) {
         return { code: 400, message: 'Malformed username' };
     }
+    
+    if(challenger == opponent) {
+        return { code: 400, message: 'A user cannot battle themself' };
+    }
 
-    if(!validate.validateJsonNumArray(challengerTeam) || !validate.validateJsonNumArray(opponentTeam)) {
+    if(!validate.validateNumArray(challengerTeam) || !validate.validateNumArray(opponentTeam)) {
         return { code: 400, message: 'Malformed team array' };
     }
 
-    if(!userDao.getUser(challenger) || !userDao.getUser(opponent)) {
+    if(!userService.getUser(challenger) || !userService.getUser(opponent)) {
         return { code: 404, message: 'User not found' };
     }
-
-    challengerTeam = JSON.parse(challengerTeam);
-    opponentTeam = JSON.parse(opponentTeam);
 
     let team1 = {
         username: challenger,
@@ -92,17 +86,20 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
     }
     team2 = newTeam2;
 
-
+    
     // Simulation
     let battle = {
         challenger: team1.username,
         challengerStatBonuses: [],
+        challengerTeam: structuredClone(team1.heroes), // (try using [...team1.heroes] if this for some reason causes problems) Want the heroes' original stats before the battle starts
+        
         opponent: team2.username,
         opponentStatBonuses: [],
-
+        opponentTeam: structuredClone(team2.heroes), // Want the heroes' original stats before the battle starts
+        
         steps: []
     };
-
+    
     setTeamStatBonuses(battle, team1, team2);
 
     
@@ -113,12 +110,18 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
 
     // Even step index means it is team1's turn, odd means it is team2's turn
     let i = 0;
-    while(i < 10 && getAliveHeroes(team1.heroes) > 0 && getAliveHeroes(team2.heroes) > 0) {
+    while(i < 10 && getAliveHeroesCount(team1.heroes) > 0 && getAliveHeroesCount(team2.heroes) > 0) {
         if(i % 2 == 0) {
+            battle.steps.push(calculateBattleStep(team1, team2));
+        }
+        else {
+            battle.steps.push(calculateBattleStep(team2, team1));
         }
 
         i++;
     }
+
+    console.log('Store battle result (only usernames and battle result, not steps) here');
 
     return battle;
 }
@@ -158,12 +161,14 @@ async function setUpTeamObj(team) {
     if(!team.username || !team.heroIds) {
         return { code: 400, message: `Malformed team object` };
     }
-    
-    const user = userDao.getUser(team.username);
+
+    let dbResponse = await userService.getUser(team.username);
+    const user = await (dbResponse.Items && dbResponse.Items[0]);
 
     if(!user) {
-        return { code: 404, message: 'User not found' };
+        return { code: 404, message: `User ${team.username} not found` };
     }
+
 
     team.userAlignment = user.alignment;
 
@@ -178,14 +183,14 @@ async function setUpTeamObj(team) {
                 return { code: 400, message: `Can't use custom hero more than once` };
             }
 
-            const customHero = await customHeroDao.getCustomHero(team.username);
+            const customHero = await customHeroService.getCustomHero(team.username);
 
             if(!validate.validateHero(customHero)) {
                 return { code: 500, message: `Couldn't fetch custom hero` };
             }
 
             // CustomHero.stats is the ID of the hero that the custom hero's stats are based on
-            const basis = apiHeroDao.getApiHero(customHero.stats);
+            const basis = apiHeroService.getApiHero(customHero.stats);
 
             if(!validate.validateHero(basis)) {
                 return { code: 500, message: `Couldn't fetch hero ID ${customHero.stats}` };
@@ -211,7 +216,7 @@ async function setUpTeamObj(team) {
             usedCustomHero = true;
         }
         else {
-            h = await apiHeroDao.getApiHero(team.heroIds[i]);
+            h = await apiHeroService.getApiHero(team.heroIds[i]);
         }
 
         if(!validate.validateHero(h)) {
@@ -231,14 +236,13 @@ function setTeamStatBonuses(battle, team1, team2) {
 
 /**
  * @returns 
- * Array of { reason, amounts: { intelligence, strength, speed, durability }, heroId } */
+ * Array of { reason, type, amounts: { intelligence, strength, speed, durability }, heroIndex } */
 function getStatBonuses(heroes, alignment) {
     // Alignment bonus/penalty is the only penalty so far, but more can be added in this function
     // neutral heroes get no bonus/penalty
     let statBonuses = [];
     for(let i = 0, bonus = {}; i < heroes.length; i++) {
         const heroAlignment = heroes[i].biography.alignment;
-        const heroId = heroes[i].id;
         const heroStats = heroes[i].powerstats;
 
         if(heroAlignment == 'neutral') {
@@ -249,13 +253,14 @@ function getStatBonuses(heroes, alignment) {
 
         bonus = {
             reason: 'alignment',
+            type: (heroAlignment == alignment ? 'bonus' : 'penalty'),
             amounts: {
                 intelligence: getBonus(heroStats.intelligence, heroAlignment == alignment),
                 strength: getBonus(heroStats.strength, heroAlignment == alignment),
                 speed: getBonus(heroStats.speed, heroAlignment == alignment),
                 durability: getBonus(heroStats.durability, heroAlignment == alignment)
             }, 
-            heroId
+            heroIndex: i
         };
 
         statBonuses.push(bonus);
@@ -275,20 +280,7 @@ function applyStatBonus(hero, bonus) {
     return newHero;
 }
 
-/**
- * @returns { hero, index }
- */
-function findHeroAndIndexById(heroes, id) {
-    for(let i = 0; i < heroes.length; i++) {
-        if(heroes[i].id == id) {
-            return { hero: heroes[i], index: i }
-        }
-    }
-
-    return { hero: null, index: -1 };
-}
-
-function getAliveHeroes(heroes) {
+function getAliveHeroesCount(heroes) {
     let count = 0;
     for(let i = 0; i < heroes.length; i++) {
         if(heroes[i].powerstats.durability > 0) {
@@ -299,24 +291,29 @@ function getAliveHeroes(heroes) {
     return count;
 }
 
-function getRandomStatTotal(team) {
+function getRandomStat() {
     let rand = Math.random() * 100;
-    let stat = '';
-    
+
     if(rand > 66.67) {
-        stat = 'intelligence';
-    } else if(rand > 33.33) {
-        stat = 'strength';
+        return 'intelligence';
+    }
+    else if(rand > 33.33) {
+        return 'strength';
     }
     else {
-        stat = 'speed';
+        return 'speed';
     }
-    
+}
+
+function getStatTotal(team, stat) {
     const total = team.heroes.reduce(
-      (sum, h) => sum + h.powerstats[stat],
+      (sum, h) => {
+        console.log(`${h.name} ${stat}: ${h.powerstats[stat]} ; sum: ${sum}`);
+        return sum + (h.powerstats.durability > 0 ? h.powerstats[stat] : 0);
+    }, /* Only allow alive heroes to do damage */
       0
     );
-
+    console.log(`total: ${total}\n\n`);
     return total;
 }
 
@@ -325,36 +322,62 @@ function getRandomStatTotal(team) {
  * right before the real battle steps are calculated
  */
 function awardStatBonusStep(activeTeam) {
+    let step = {
+        damage: 0,
+        teamStats: [],
+        remarks: []
+    };
     let statBonuses = getStatBonuses(activeTeam.heroes, activeTeam.userAlignment);
 
     for(const bonus of statBonuses) {
-        const heroIndexPair = findHeroAndIndexById(activeTeam.heroes, bonus.heroId);
-        const hero = heroIndexPair.hero;
-        activeTeam.heroes[heroIndexPair.index] = applyStatBonus(hero, bonus);
+        const hero = activeTeam.heroes[bonus.heroIndex];
+        activeTeam.heroes[bonus.heroIndex] = applyStatBonus(hero, bonus);
+        step.remarks.push(`${hero.name}: ${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`);
     }
 
-    console.log('Remember to finish remarks in awardStatBonusStep');
-    return {
-        damage: 0,
-        teamStats: activeTeam.heroes.reduce((stats, hero) => [...stats, hero.powerstats], []),
-        remarks: []
-    };
+    step.teamStats = activeTeam.heroes.reduce((stats, hero) => [...stats, hero.powerstats], []);
+
+    return step;
 }
 
-function calculateBattleStep(activeTeam, activeTeamBonuses, otherTeam) {
+function calculateBattleStep(activeTeam, otherTeam) {
     let battleStep = {
         damage: 0,
         teamStats: [], //Array of { intelligence, strength, speed, durability }
         remarks: [] //Array of string
     };
 
-    const totalDamage = getRandomStatTotal(activeTeam);
+    const randStat = getRandomStat();
+    const totalDamage = getStatTotal(activeTeam, randStat);
     battleStep.damage = totalDamage;
 
+    battleStep.remarks.push(`Damage wildcard: ${randStat}`);
+    battleStep.remarks.push(`${activeTeam.username} team: does ${totalDamage} damage`);
+
     // Only divide damage by the total number of living heroes on the opposing team
-    const damageDivider = getAliveHeroes(otherTeam);
+    const damageDivider = getAliveHeroesCount(otherTeam.heroes);
+
     // Keep damage as a decimal, going to Math.floor the health instead
     const damage = totalDamage / damageDivider;
 
-    
+    for(hero of otherTeam.heroes) {
+        const newStats = {...hero.powerstats};
+
+        // If hero is alive, damage it
+        if(hero.powerstats.durability > 0) {
+            newStats.durability = Math.round(newStats.durability - damage);
+
+            battleStep.remarks.push(`${hero.name}: takes ${Math.round(damage)} damage`);
+
+            if(newStats.durability <= 0) {
+                newStats.durability = 0;
+                battleStep.remarks.push(`${hero.name}: dies`);
+            }
+        }
+
+        // Always add hero's powerstats even if it is not alive (still need teamStats to maintain stat order)
+        battleStep.teamStats.push(newStats);
+    }
+
+    return battleStep;
 }
