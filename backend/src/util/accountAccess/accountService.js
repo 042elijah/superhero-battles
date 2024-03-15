@@ -76,28 +76,31 @@ async function loginUser(data) {
 
     //pass username to DAO to retrieve
     const dbResponse = await userService.getUser(username);
-    const user = dbResponse.Items && dbResponse.Items[0];
+    if (dbResponse) { 
+        const user = dbResponse.Items && dbResponse.Items[0]; 
+        
+        //verify password match
+        const validPass = await validatePassword(password, user)
+        if (!validPass) {
+            return null;
+        }
+        //generate jwt
+        else {
+            let payload = {
+                username: user.username,
+                alignment: user.alignment,
+                avatar: user.avatar,
+            };
+    
+            //generate JWT
+            const token = await generateJWT(payload);
+    
+            return { success: true, user: payload, token };
+        }
+    } else return null
 
-    //verify password match
-    const validPass = await validatePassword(password, user)
-    if (!validPass) {
-        return null;
-    }
 
 
-    //generate jwt
-    else {
-        let payload = {
-            username: user.username,
-            alignment: user.alignment,
-            avatar: user.avatar,
-        };
-
-        //generate JWT
-        const token = await generateJWT(payload);
-
-        return { success: true, user: payload, token };
-    }
 }
 
 module.exports = {
