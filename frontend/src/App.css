@@ -1,6 +1,21 @@
+:root {
+  --card-scale: 1;
+  --battle-view-scale: 0.85;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .hit-anim {
     animation: hit-anim-keyframes 1s linear;
+    animation-iteration-count: 1;
+  }
+
+  .bonus-anim {
+    animation: bonus-anim-keyframes 1s linear;
+    animation-iteration-count: 1;
+  }
+
+  .penalty-anim {
+    animation: penalty-anim-keyframes 1s linear;
     animation-iteration-count: 1;
   }
 }
@@ -27,6 +42,26 @@
   }
 }
 
+@keyframes bonus-anim-keyframes {
+  0%, 100% {
+    /* transform: scale(1); */
+  }
+
+  50% {
+    transform: scale(calc(var(--card-scale) * 1.2));
+  }
+}
+
+@keyframes penalty-anim-keyframes {
+  0%, 100% {
+    /* transform: scale(1); */
+  }
+
+  50% {
+    transform: scale(calc(var(--card-scale) * 0.85));
+  }
+}
+
 .prevent-select {
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
@@ -39,30 +74,27 @@
   box-sizing: border-box;
   text-align: center;
   width: 300px;
+  /* width: 15.7vw; */ /* Use this when changing cards to use viewport-relative units */
+
   height: 400px;
-  /* border: 10px solid red; */
+  /* height: 39.8vh; */ /* Use this when changing cards to use viewport-relative units */
   padding-top: 5px;
   padding-bottom: 0px;
-  margin: 80px 30px;
-  /* width: 220px; */
-  /* background-color: blue; */
-
+  margin: 30px 30px;
+  
   transition: all 0.3s ease;
 
+  transform: scale(var(--card-scale));
 }
 
-.hero-card:hover {
+/* .hero-card:hover {
   transform: scale(1.05);
-}
+} */
 
 .hero-card-image {
   border-radius: 10px;
   box-shadow: 15px 15px 10px 5px rgba(197, 197, 197, 0.93);
-  /* border: 7px solid rgb(0, 3, 28); */
   border: 8px solid rgb(181, 140, 78);
-  /* outline: 12px solid rgb(146, 237, 255); */
-  /* border-image: linear-gradient(#f6b73c, #4d9f0c) 30; */
-  /* width: 200px; */
   padding: 0;
   
   /* new frame stuff */
@@ -72,10 +104,6 @@
   width: 88.5%;
   height: 88.5%;
   object-fit: cover;
-
-  /* top: 10px;
-  left: 10px;
-  width: 88.5%; */
 }
 
 .hero-card-overlay {

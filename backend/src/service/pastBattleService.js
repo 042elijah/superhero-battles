@@ -71,7 +71,7 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
         heroes: []
     };
 
-    const newTeam1 = await setUpTeamObj(team1);
+    let newTeam1 = await setUpTeamObj(team1);
     // Maybe should have better way of validating?
     if(newTeam1.code) {
         return newTeam1;
@@ -79,7 +79,7 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
     team1 = newTeam1;
 
 
-    const newTeam2 = await setUpTeamObj(team2);
+    let newTeam2 = await setUpTeamObj(team2);
     // Maybe should have better way of validating?
     if(newTeam2.code) {
         return newTeam2;
@@ -110,7 +110,7 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
 
     // Even step index means it is team1's turn, odd means it is team2's turn
     let i = 0;
-    while(i < 10 && getAliveHeroesCount(team1.heroes) > 0 && getAliveHeroesCount(team2.heroes) > 0) {
+    while(getAliveHeroesCount(team1.heroes) > 0 && getAliveHeroesCount(team2.heroes) > 0) {
         if(i % 2 == 0) {
             battle.steps.push(calculateBattleStep(team1, team2));
         }
@@ -183,22 +183,23 @@ async function setUpTeamObj(team) {
                 return { code: 400, message: `Can't use custom hero more than once` };
             }
 
-            const customHero = await customHeroService.getCustomHero(team.username);
-
-            if(!validate.validateHero(customHero)) {
-                return { code: 500, message: `Couldn't fetch custom hero` };
-            }
+            const customHeroResponse = await customHeroService.getCustomHero(team.username);
+            const customHero = customHeroResponse && customHeroResponse.data;
 
             // CustomHero.stats is the ID of the hero that the custom hero's stats are based on
-            const basis = apiHeroService.getApiHero(customHero.stats);
+            const basis = await apiHeroService.getApiHero(customHero.stats);
+            
+            // if (!validate.validateHero(customHero)) {
+            //     return { code: 500, message: `Couldn't fetch custom hero` };
+            // }
 
             if(!validate.validateHero(basis)) {
                 return { code: 500, message: `Couldn't fetch hero ID ${customHero.stats}` };
             }
 
             h = {
-                id: customHero.id,
-                name: customHero.name,
+                id: -1, //customHero.id,
+                name: customHero.heroName,
                 image: {
                     url: basis.image.url
                 },
@@ -206,10 +207,11 @@ async function setUpTeamObj(team) {
                     intelligence: Number(basis.powerstats.intelligence),
                     strength: Number(basis.powerstats.strength),
                     speed: Number(basis.powerstats.speed),
-                    durability: Number(basis.powerstats.durability)
+                    durability: Number(basis.powerstats.durability),
+                    currentHealth: Number(basis.powerstats.durability) // Health changes during battle, so it is a separate value so the hero's tier doesn't change during battle
                 },
                 biography: {
-                    alignment: customHero.biography.alignment
+                    alignment: customHero.alignment
                 }
             };
 
@@ -217,6 +219,7 @@ async function setUpTeamObj(team) {
         }
         else {
             h = await apiHeroService.getApiHero(team.heroIds[i]);
+            h.powerstats.currentHealth = Number(h.powerstats.durability); // API heroes don't have the currentHealth stat so need to add it
         }
 
         if(!validate.validateHero(h)) {
@@ -236,7 +239,7 @@ function setTeamStatBonuses(battle, team1, team2) {
 
 /**
  * @returns 
- * Array of { reason, type, amounts: { intelligence, strength, speed, durability }, heroIndex } */
+ * Array of { reason, type, amounts: { intelligence, strength, speed, durability, currentHealth }, heroIndex } */
 function getStatBonuses(heroes, alignment) {
     // Alignment bonus/penalty is the only penalty so far, but more can be added in this function
     // neutral heroes get no bonus/penalty
@@ -258,7 +261,8 @@ function getStatBonuses(heroes, alignment) {
                 intelligence: getBonus(heroStats.intelligence, heroAlignment == alignment),
                 strength: getBonus(heroStats.strength, heroAlignment == alignment),
                 speed: getBonus(heroStats.speed, heroAlignment == alignment),
-                durability: getBonus(heroStats.durability, heroAlignment == alignment)
+                durability: getBonus(heroStats.durability, heroAlignment == alignment),
+                currentHealth: getBonus(heroStats.durability, heroAlignment == alignment)
             }, 
             heroIndex: i
         };
@@ -272,10 +276,11 @@ function getStatBonuses(heroes, alignment) {
 function applyStatBonus(hero, bonus) {
     let newHero = hero;
 
-    newHero.powerstats.intelligence += bonus.amounts.intelligence,
-    newHero.powerstats.strength += bonus.amounts.strength,
-    newHero.powerstats.speed += bonus.amounts.speed,
+    newHero.powerstats.intelligence += bonus.amounts.intelligence;
+    newHero.powerstats.strength += bonus.amounts.strength;
+    newHero.powerstats.speed += bonus.amounts.speed;
     newHero.powerstats.durability += bonus.amounts.durability
+    newHero.powerstats.currentHealth += bonus.amounts.currentHealth
 
     return newHero;
 }
@@ -283,10 +288,13 @@ function applyStatBonus(hero, bonus) {
 function getAliveHeroesCount(heroes) {
     let count = 0;
     for(let i = 0; i < heroes.length; i++) {
-        if(heroes[i].powerstats.durability > 0) {
+        // if(heroes[i].powerstats.durability > 0) {
+        if(heroes[i].powerstats.currentHealth > 0) {
             count++;
         }
     }
+
+    console.log('\n');
 
     return count;
 }
@@ -308,12 +316,13 @@ function getRandomStat() {
 function getStatTotal(team, stat) {
     const total = team.heroes.reduce(
       (sum, h) => {
-        console.log(`${h.name} ${stat}: ${h.powerstats[stat]} ; sum: ${sum}`);
-        return sum + (h.powerstats.durability > 0 ? h.powerstats[stat] : 0);
+        // console.log(`${h.name} ${stat}: ${h.powerstats[stat]} ; sum: ${sum}`);
+        // return sum + (h.powerstats.durability > 0 ? h.powerstats[stat] : 0);
+        return sum + (h.powerstats.currentHealth > 0 ? h.powerstats[stat] : 0);
     }, /* Only allow alive heroes to do damage */
       0
     );
-    console.log(`total: ${total}\n\n`);
+    // console.log(`total: ${total}\n\n`);
     return total;
 }
 
@@ -325,17 +334,26 @@ function awardStatBonusStep(activeTeam) {
     let step = {
         damage: 0,
         teamStats: [],
-        remarks: []
+        globalRemarks: [],
+        teamRemarks: []
     };
     let statBonuses = getStatBonuses(activeTeam.heroes, activeTeam.userAlignment);
 
+    step.globalRemarks.push(`${activeTeam.username}'s team: Stat bonus/penalty phase`);
+
     for(const bonus of statBonuses) {
         const hero = activeTeam.heroes[bonus.heroIndex];
-        activeTeam.heroes[bonus.heroIndex] = applyStatBonus(hero, bonus);
-        step.remarks.push(`${hero.name}: ${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`);
+        console.log('Hero before bonus:');
+        console.log(hero.name);
+        console.log(hero.powerstats);
+        console.log('After bonus');
+        activeTeam.heroes[bonus.heroIndex] = applyStatBonus(hero, bonus); // This may be unneeded as it changes the obj that it references (?)
+        console.log(activeTeam.heroes[bonus.heroIndex].powerstats);
+        // step.remarks.push(`${hero.name}: ${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`);
+        step.teamRemarks.push({heroIndex: bonus.heroIndex, remark: `${hero.name}: ${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`});
     }
 
-    step.teamStats = activeTeam.heroes.reduce((stats, hero) => [...stats, hero.powerstats], []);
+    step.teamStats = activeTeam.heroes.reduce((stats, hero) => [...stats, {...hero.powerstats}], []);
 
     return step;
 }
@@ -343,16 +361,20 @@ function awardStatBonusStep(activeTeam) {
 function calculateBattleStep(activeTeam, otherTeam) {
     let battleStep = {
         damage: 0,
-        teamStats: [], //Array of { intelligence, strength, speed, durability }
-        remarks: [] //Array of string
+        teamStats: [], //Array of { intelligence, strength, speed, durability, currentHealth }
+        globalRemarks: [], //Array of string
+        teamRemarks: [] //Array of string
     };
 
     const randStat = getRandomStat();
     const totalDamage = getStatTotal(activeTeam, randStat);
     battleStep.damage = totalDamage;
 
-    battleStep.remarks.push(`Damage wildcard: ${randStat}`);
-    battleStep.remarks.push(`${activeTeam.username} team: does ${totalDamage} damage`);
+    // battleStep.remarks.push(`Damage wildcard: ${randStat}`);
+    // battleStep.remarks.push(`${activeTeam.username} team: does ${totalDamage} damage`);
+
+    battleStep.globalRemarks.push(`Damage wildcard: ${randStat}`),
+    battleStep.globalRemarks.push(`${activeTeam.username} team: does ${totalDamage} damage`);
 
     // Only divide damage by the total number of living heroes on the opposing team
     const damageDivider = getAliveHeroesCount(otherTeam.heroes);
@@ -360,24 +382,350 @@ function calculateBattleStep(activeTeam, otherTeam) {
     // Keep damage as a decimal, going to Math.floor the health instead
     const damage = totalDamage / damageDivider;
 
-    for(hero of otherTeam.heroes) {
-        const newStats = {...hero.powerstats};
+    for(let i = 0; i < otherTeam.heroes.length; i++) {
+        let hero = otherTeam.heroes[i];
+
+        // let newStats = structuredClone(hero.powerstats);
+        let newStats = hero.powerstats;
 
         // If hero is alive, damage it
-        if(hero.powerstats.durability > 0) {
-            newStats.durability = Math.round(newStats.durability - damage);
+        // if(hero.powerstats.durability > 0) {
+        if(hero.powerstats.currentHealth > 0) {
+            // newStats.durability = Math.round(newStats.durability - damage);
+            newStats.currentHealth = Math.round(newStats.currentHealth - damage);
+            
+            console.log(`[${hero.name}] DUR: ${newStats.durability}; HEAL: ${newStats.currentHealth}`);
 
-            battleStep.remarks.push(`${hero.name}: takes ${Math.round(damage)} damage`);
+            // battleStep.teamRemarks.push(`${hero.name}: takes ${Math.round(damage)} damage`);
+            battleStep.teamRemarks.push({ heroIndex: i, remark: `${hero.name}: takes ${Math.round(damage)} damage` });
 
-            if(newStats.durability <= 0) {
-                newStats.durability = 0;
-                battleStep.remarks.push(`${hero.name}: dies`);
+            // if(newStats.durability <= 0) {
+            if(newStats.currentHealth <= 0) {
+                // newStats.durability = 0;
+                newStats.currentHealth = 0;
+                // battleStep.remarks.push(`${hero.name}: dies`);
+                battleStep.teamRemarks.push({ heroIndex: i, remark: `${hero.name}: dies` });
+
             }
         }
 
         // Always add hero's powerstats even if it is not alive (still need teamStats to maintain stat order)
-        battleStep.teamStats.push(newStats);
+        battleStep.teamStats.push({ ...newStats }); // Push a clone of stats (because want hero health to change, but want the steps to be 'snapshots' of each point int the battle)
     }
 
     return battleStep;
+}
+
+
+let b = {
+    "challenger": "K00Lguy",
+    "challengerStatBonuses": [
+        {
+            "reason": "alignment",
+            "type": "bonus",
+            "amounts": {
+                "intelligence": 13,
+                "strength": 9,
+                "speed": 12,
+                "durability": 15,
+                "currentHealth": 15
+            },
+            "heroIndex": 0
+        },
+        {
+            "reason": "alignment",
+            "type": "bonus",
+            "amounts": {
+                "intelligence": 5,
+                "strength": 12,
+                "speed": 3,
+                "durability": 15,
+                "currentHealth": 15
+            },
+            "heroIndex": 1
+        },
+        {
+            "reason": "alignment",
+            "type": "penalty",
+            "amounts": {
+                "intelligence": -9,
+                "strength": -1,
+                "speed": -1,
+                "durability": -15,
+                "currentHealth": -15
+            },
+            "heroIndex": 2
+        }
+    ],
+    "challengerTeam": [
+        {
+            "id": "5",
+            "name": "Abraxas",
+            "image": {
+                "url": "https://www.superherodb.com/pictures2/portraits/10/100/181.jpg"
+            },
+            "powerstats": {
+                "intelligence": 88,
+                "strength": 63,
+                "speed": 83,
+                "durability": 100,
+                "currentHealth": 100
+            },
+            "biography": {
+                "alignment": "bad"
+            }
+        },
+        {
+            "id": "6",
+            "name": "Absorbing Man",
+            "image": {
+                "url": "https://www.superherodb.com/pictures2/portraits/10/100/1448.jpg"
+            },
+            "powerstats": {
+                "intelligence": 38,
+                "strength": 80,
+                "speed": 25,
+                "durability": 100,
+                "currentHealth": 100
+            },
+            "biography": {
+                "alignment": "bad"
+            }
+        },
+        {
+            "id": "7",
+            "name": "Adam Monroe",
+            "image": {
+                "url": "https://www.superherodb.com/pictures2/portraits/10/100/1026.jpg"
+            },
+            "powerstats": {
+                "intelligence": 63,
+                "strength": 10,
+                "speed": 12,
+                "durability": 100,
+                "currentHealth": 100
+            },
+            "biography": {
+                "alignment": "good"
+            }
+        }
+    ],
+    "opponent": "johndoe1",
+    "opponentStatBonuses": [
+        {
+            "reason": "alignment",
+            "type": "bonus",
+            "amounts": {
+                "intelligence": 10,
+                "strength": 1,
+                "speed": 4,
+                "durability": 6,
+                "currentHealth": 6
+            },
+            "heroIndex": 0
+        },
+        {
+            "reason": "alignment",
+            "type": "bonus",
+            "amounts": {
+                "intelligence": 1,
+                "strength": 1,
+                "speed": 1,
+                "durability": 0,
+                "currentHealth": 0
+            },
+            "heroIndex": 1
+        },
+        {
+            "reason": "alignment",
+            "type": "bonus",
+            "amounts": {
+                "intelligence": 11,
+                "strength": 4,
+                "speed": 5,
+                "durability": 12,
+                "currentHealth": 12
+            },
+            "heroIndex": 2
+        }
+    ],
+    "opponentTeam": [
+        {
+            "id": "8",
+            "name": "Adam Strange",
+            "image": {
+                "url": "https://www.superherodb.com/pictures2/portraits/10/100/626.jpg"
+            },
+            "powerstats": {
+                "intelligence": 69,
+                "strength": 10,
+                "speed": 33,
+                "durability": 40,
+                "currentHealth": 40
+            },
+            "biography": {
+                "alignment": "good"
+            }
+        },
+        {
+            "id": "10",
+            "name": "Agent Bob",
+            "image": {
+                "url": "https://www.superherodb.com/pictures2/portraits/10/100/10255.jpg"
+            },
+            "powerstats": {
+                "intelligence": 10,
+                "strength": 8,
+                "speed": 13,
+                "durability": 5,
+                "currentHealth": 5
+            },
+            "biography": {
+                "alignment": "good"
+            }
+        },
+        {
+            "id": "11",
+            "name": "Agent Zero",
+            "image": {
+                "url": "https://www.superherodb.com/pictures2/portraits/10/100/396.jpg"
+            },
+            "powerstats": {
+                "intelligence": 75,
+                "strength": 28,
+                "speed": 38,
+                "durability": 80,
+                "currentHealth": 80
+            },
+            "biography": {
+                "alignment": "good"
+            }
+        }
+    ],
+    "steps": [
+        {
+            "damage": 0,
+            "remarks": [
+                "Abraxas: 15% alignment bonus",
+                "Absorbing Man: 15% alignment bonus",
+                "Adam Monroe: 15% alignment penalty"
+            ]
+        },
+        {
+            "damage": 0,
+            "remarks": [
+                "Adam Strange: 15% alignment bonus",
+                "Agent Bob: 15% alignment bonus",
+                "Agent Zero: 15% alignment bonus"
+            ]
+        },
+        {
+            "damage": 173,
+            "remarks": [
+                "Damage wildcard: strength",
+                "K00Lguy team: does 173 damage",
+                "Adam Strange: takes 58 damage",
+                "Adam Strange: dies",
+                "Agent Bob: takes 58 damage",
+                "Agent Bob: dies",
+                "Agent Zero: takes 58 damage"
+            ]
+        },
+        {
+            "damage": 94,
+            "remarks": [
+                "Damage wildcard: speed",
+                "johndoe1 team: does 94 damage",
+                "Abraxas: takes 31 damage",
+                "Absorbing Man: takes 31 damage",
+                "Adam Monroe: takes 31 damage"
+            ]
+        },
+        {
+            "damage": 173,
+            "remarks": [
+                "Damage wildcard: strength",
+                "K00Lguy team: does 173 damage",
+                "Adam Strange: takes 58 damage",
+                "Adam Strange: dies",
+                "Agent Bob: takes 58 damage",
+                "Agent Bob: dies",
+                "Agent Zero: takes 58 damage"
+            ]
+        },
+        {
+            "damage": 52,
+            "remarks": [
+                "Damage wildcard: strength",
+                "johndoe1 team: does 52 damage",
+                "Abraxas: takes 17 damage",
+                "Absorbing Man: takes 17 damage",
+                "Adam Monroe: takes 17 damage"
+            ]
+        },
+        {
+            "damage": 134,
+            "remarks": [
+                "Damage wildcard: speed",
+                "K00Lguy team: does 134 damage",
+                "Adam Strange: takes 45 damage",
+                "Agent Bob: takes 45 damage",
+                "Agent Bob: dies",
+                "Agent Zero: takes 45 damage"
+            ]
+        },
+        {
+            "damage": 94,
+            "remarks": [
+                "Damage wildcard: speed",
+                "johndoe1 team: does 94 damage",
+                "Abraxas: takes 31 damage",
+                "Absorbing Man: takes 31 damage",
+                "Adam Monroe: takes 31 damage"
+            ]
+        },
+        {
+            "damage": 173,
+            "remarks": [
+                "Damage wildcard: strength",
+                "K00Lguy team: does 173 damage",
+                "Adam Strange: takes 58 damage",
+                "Adam Strange: dies",
+                "Agent Bob: takes 58 damage",
+                "Agent Bob: dies",
+                "Agent Zero: takes 58 damage"
+            ]
+        },
+        {
+            "damage": 94,
+            "remarks": [
+                "Damage wildcard: speed",
+                "johndoe1 team: does 94 damage",
+                "Abraxas: takes 31 damage",
+                "Absorbing Man: takes 31 damage",
+                "Adam Monroe: takes 31 damage"
+            ]
+        },
+        {
+            "damage": 134,
+            "remarks": [
+                "Damage wildcard: speed",
+                "K00Lguy team: does 134 damage",
+                "Adam Strange: takes 45 damage",
+                "Agent Bob: takes 45 damage",
+                "Agent Bob: dies",
+                "Agent Zero: takes 45 damage"
+            ]
+        },
+        {
+            "damage": 52,
+            "remarks": [
+                "Damage wildcard: strength",
+                "johndoe1 team: does 52 damage",
+                "Abraxas: takes 17 damage",
+                "Absorbing Man: takes 17 damage",
+                "Adam Monroe: takes 17 damage"
+            ]
+        }
+    ]
 }

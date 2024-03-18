@@ -176,12 +176,36 @@ function HeroCard(props: any) {
         setState({ ...state, gettingHit: false });
     };
 
+
+    // // If hero doesn't have a health var (likely because it was pulled straight from api without converting to hero obj, add it)
+    // if(props && !props.hero.health && props.hero.health !== 0) { // Zero check or else it will reset health when it reaches 0
+    //     props.hero.health = props.hero.powerstats.durability;
+    // }
+
     // Use this in style if want shadow to be colored as the alignment color:
     // boxShadow: `15px 15px 10px 5px color-mix(in srgb, ${alignmentColor()} 35%, white)`
 
+    // Maybe use this commented code to scale the whole card based on window size (using CSS scale())
+    // Also see this https://stackoverflow.com/questions/52467896/transform-scale-using-viewport-units
+    // let cardScale = 1;
+    // const [windowResizeTick, setWindowResizeTick] = useState(0);
+    // // let windowResizeTick = 0;
+
+    // // useEffect(() => {
+
+    //     var range = 1 / 1000;
+    //     var vw = range * Math.min(window.innerWidth, window.innerHeight);
+    
+    //     // document.documentElement.style.setProperty('--vw-scale', `${vw}`);
+    //     cardScale = range * Math.min(window.innerWidth, window.innerHeight);
+    // // }, []);
+    
+    // // window.addEventListener('resize', () => { setWindowResizeTick(windowResizeTick+1); console.log('Resizing window'); });
+
     return (
-        <div className={`hero-card ${animHitClass()}`} 
-            onClick={getHitEvent} 
+        <div className={`hero-card ${props.animClass} ${animHitClass()}`}
+            // style={{ transform: `scale(${cardScale})` }} 
+            // onClick={getHitEvent} 
             onAnimationEnd={onAnimationEndEvent}
         >
             {/* Hero image */}
@@ -197,11 +221,16 @@ function HeroCard(props: any) {
                     <div className='statdiv' style={{left:'17%'}}><p className='hero-stat prevent-select' draggable='false'>{props.hero.powerstats.intelligence}</p></div>
                     <div className='statdiv' style={{left:'38%'}}><p className='hero-stat prevent-select' draggable='false'>{props.hero.powerstats.strength}</p></div>
                     <div className='statdiv' style={{left:'62%'}}><p className='hero-stat prevent-select' draggable='false'>{props.hero.powerstats.speed}</p></div>
-                    <div className='statdiv' style={{left:'84%'}}><p className='hero-stat prevent-select' draggable='false'>{props.hero.health}</p></div>
+                    {/* <div className='statdiv' style={{left:'84%'}}><p className='hero-stat prevent-select' draggable='false'>{props.hero.health}</p></div> */}
+                    <div className='statdiv' style={{left:'84%'}}><p className='hero-stat prevent-select' draggable='false'>{props.hero.powerstats.currentHealth}</p></div>
             </div>
 
+            {/* Custom hero gear icon */}
+            <img  className='hero-card-overlay prevent-select' hidden={props.hero.id < 0 ? false : true } src={require('../img/custom_hero_indicator.png')}></img>
+
             {/* Dead hero slash */}
-            <img  className='hero-card-overlay prevent-select' hidden={props.hero.health <= 0 ? false : true } src={require('../img/red_x.png')}></img>
+            {/* <img  className='hero-card-overlay prevent-select' hidden={props.hero.health <= 0 ? false : true } src={require('../img/red_x.png')}></img> */}
+            <img  className='hero-card-overlay prevent-select' hidden={props.hero.powerstats.currentHealth <= 0 ? false : true } src={require('../img/red_x.png')}></img>
         </div>
     )
 }
