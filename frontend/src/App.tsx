@@ -1,9 +1,11 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useParams } from 'react-router-dom';
 import './App.css';
 import GetAllImgs from './components/GetAllImgs';
 import RegisterContainer from './components/LogginAndRegister/LoginAndRegisterContainer';
 import Battle from './components/Battle/Battle';
+import ExploreUsersContainer from './components/ExploreUsersComp/ExploreUsersContainer';
+import UserProfile from './components/User/UserProfile';
 
 
 function App() {
@@ -13,6 +15,9 @@ function App() {
     <Routes>
       <Route path='/heroes' element={<GetAllImgs />}></Route>
       <Route path='/battle' element={<Battle />}></Route>
+      <Route path='/usersearch' element={<ExploreUsersContainer />}></Route>
+      <Route path='/users/:username' element={<UserProfile />}></Route>
+
     </Routes>
   </div>
   );
