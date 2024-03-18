@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import HeroCard from './HeroCard';
-import hero from '../model/hero';
+import Hero from '../model/hero';
 
 function GetAllImgs() {
-    const [heroes, setHeroes] = useState([] as hero[]);
+    const [heroes, setHeroes] = useState([] as Hero[]);
     const imageStart = 95;
     const numImages = 40;
     
@@ -12,14 +12,14 @@ function GetAllImgs() {
     }, []);
 
     const getHeroes = async () => {
-        let newHeroes: hero[] = [];
+        let newHeroes: Hero[] = [];
         for(let i = imageStart; i < imageStart + numImages; i++) {
             const url = `https://www.superheroapi.com/api.php/122100753632232992/${i}`;
             
             await fetch(url)
                 .then(res => res.json())
                 .then((x: any) => {
-                    let h: hero = new hero({
+                    let h: Hero = new Hero({
                         id: x.id,
                         name: x.name,
                         image: {
@@ -29,7 +29,8 @@ function GetAllImgs() {
                             intelligence: Number(x.powerstats.intelligence),
                             strength: Number(x.powerstats.strength),
                             speed: Number(x.powerstats.speed),
-                            durability: Number(x.powerstats.durability)
+                            durability: Number(x.powerstats.durability),
+                            currentHealth: Number(x.powerstats.durability),
                         },
                         biography: {
                             alignment: x.biography.alignment
@@ -56,7 +57,7 @@ function GetAllImgs() {
         gridTemplateColumns: 'repeat(8, 1fr)',
         gap: '0px'
       }}>
-        {heroes && heroes.map((x: hero, idx: any) => {
+        {heroes && heroes.map((x: Hero, idx: any) => {
             return <HeroCard key={x.id} hero={x} />
         })}
     </div>

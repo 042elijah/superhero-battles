@@ -104,6 +104,7 @@ function validatePutUserData(userData) {
 }
 
 function validateHero(hero) {
+    console.log(hero.name);
     if(!(hero && 
         hero.powerstats.intelligence && 
         hero.powerstats.strength && 
