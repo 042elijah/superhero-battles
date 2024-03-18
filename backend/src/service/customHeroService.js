@@ -89,7 +89,11 @@ function isGoodBadOrNeutral(s) {
 module.exports = {
     getCustomHero,
     //postCustomHero,
-    putCustomHero
+    putCustomHero,
+
+    // export below functions for testing purpose
+    checkHero,
+    isGoodBadOrNeutral
 }
 
 
