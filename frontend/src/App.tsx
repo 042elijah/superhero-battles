@@ -6,6 +6,7 @@ import RegisterContainer from './components/LogginAndRegister/LoginAndRegisterCo
 import Battle from './components/Battle/Battle';
 import ExploreUsersContainer from './components/ExploreUsersComp/ExploreUsersContainer';
 import UserProfile from './components/User/UserProfile';
+import HeroForm from './components/CustomHeroPage/HeroForm';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <Route path='/battle' element={<Battle />}></Route>
       <Route path='/usersearch' element={<ExploreUsersContainer />}></Route>
       <Route path='/users/:username' element={<UserProfile />}></Route>
+      <Route path='/users/:username/customhero' element={<HeroForm />}></Route>
 
     </Routes>
   </div>

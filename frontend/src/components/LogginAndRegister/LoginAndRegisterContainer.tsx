@@ -12,8 +12,10 @@ function RegisterContainer() {
     async function registerUser(username: any, password: any) {
         
         try {
-            setlogin(false)
-            setShow(false)
+            console.log("register");
+            alert("register");
+            setlogin(false);
+            setShow(false);
             let response = await axios.post(`${URL}/register`, {
                 username: username,
                 password: password
