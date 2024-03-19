@@ -20,6 +20,7 @@ function Battle() {
 
     const startBattle = tryPromise(async (event: any) => {
         const battle = await simulateBattle();
+
         setBattle(battle);
 
         setStep(-1);
@@ -29,7 +30,7 @@ function Battle() {
 
     const stepLoop = () => {
 
-        if (battle != null) {
+        if (battle != null && !battle.code) {
             // If next step would bring the step index out of bounds, then the battle is has finished already
             if(step + 1 >= battle.steps.length) {
                 setBattleFinished(true);
@@ -46,9 +47,9 @@ function Battle() {
     
         // Used for setting each team's state step BASED ON the whole battle's state step
         // ** Needs to be in a separate useEffect hook because it references battle state step to calc team's steps (if it is not in a useEffect, team's steps won't update) **
-        useEffect(() => { if (battle != null && !battleFinished) { real_calculateTeamSteps(); } }, [step]);
+        useEffect(() => { if (battle != null && !battle.code && !battleFinished) { real_calculateTeamSteps(); } }, [step]);
     
-        useEffect(() => { if(battle != null && (statIdx1 >= battle.steps.length || statIdx2 >= battle.steps.length)) { setBattleFinished(true) } }, [step, statIdx1, statIdx2]);
+        useEffect(() => { if(battle != null && !battle.code && (statIdx1 >= battle.steps.length || statIdx2 >= battle.steps.length)) { setBattleFinished(true) } }, [step, statIdx1, statIdx2]);
     };
 
     const hardcoded_calculateTeamSteps = () => {
@@ -90,84 +91,116 @@ function Battle() {
         }
     }
 
-  const real_calculateTeamSteps = () => {
-    if(battle) {
-        if(statIdx1 < battle.steps.length && statIdx2 < battle.steps.length) {
-            if (step == -1) {
-                // Show initial stats
-                console.log('Initial state');
-            }
-            // The first step is the challenger's stat bonus phase/step
-            else if(step == 0) {
-                setStatIdx1(0);
-            }
-            // The second step is the opponent's stat bonus phase/step
-            else if (step == 1) {
-                setStatIdx2(1);
-            }
-            // The rest of the steps follow a consistent pattern
-            else {
-                if (step % 2 == 0) {
-                    setStatIdx2(step);
+    const real_calculateTeamSteps = () => {
+        if(battle && !battle.code) {
+            if(statIdx1 < battle.steps.length && statIdx2 < battle.steps.length) {
+                if (step == -1) {
+                    // Show initial stats
+                    console.log('Initial state');
                 }
+                // The first step is the challenger's stat bonus phase/step
+                else if(step == 0) {
+                    setStatIdx1(0);
+                }
+                // The second step is the opponent's stat bonus phase/step
+                else if (step == 1) {
+                    setStatIdx2(1);
+                }
+                // The rest of the steps follow a consistent pattern
                 else {
-                    setStatIdx1(step);
+                    if (step % 2 == 0) {
+                        setStatIdx2(step);
+                    }
+                    else {
+                        setStatIdx1(step);
+                    }
                 }
             }
         }
-    }
-    else {
-        console.log('Battle not made yet');
-    }
-  };
-
-  const getTeamAnimClasses = (teamIdx: number) => {
-    // Return an array of either '', 'bonus-anim', 'penalty-anim', or 'hit-anim'
-    // based on teamIdx and current step value
-    // for step == 0 or step == 1:
-        // use battle.xStatBonuses.reduce to check if a particular hero got a bonus or a penalty and that decides bonus 
-
-    // else for other steps:
-        // just do step % 2 == 0
-            // if its correct teamIdx
-                // then return hit-anim
-            // else
-                // return ''
-
-    const team = teamIdx == 0 ? battle.challengerTeam : battle.opponentTeam;
-    let animClasses = [];
-
-    for(let i = 0; i < team.length; i++) {
-        if(battle != null) {
-            animClasses.push(getHeroAnimClass(teamIdx, i));
-        }
         else {
-            return '';
+            console.log('Battle not made yet');
         }
-    }
-    
-    return animClasses;
-  };
+    };
 
-  const getHeroAnimClass = (teamIdx: number, heroIdx: number) => {
-    if(step == teamIdx) {
-        let type;
-        try { type = (teamIdx == 0 ? battle.challengerStatBonuses : battle.opponentStatBonuses)[heroIdx].type; } catch(e){ return ''; }
+    const getTeamAnimClasses = (teamIdx: number) => {
+        // Return an array of either '', 'bonus-anim', 'penalty-anim', or 'hit-anim'
+        // based on teamIdx and current step value
+        // for step == 0 or step == 1:
+            // use battle.xStatBonuses.reduce to check if a particular hero got a bonus or a penalty and that decides bonus 
 
-        if(type == 'bonus') {
-            return 'bonus-anim';
+        // else for other steps:
+            // just do step % 2 == 0
+                // if its correct teamIdx
+                    // then return hit-anim
+                // else
+                    // return ''
+
+        const team = teamIdx == 0 ? battle.challengerTeam : battle.opponentTeam;
+        let animClasses = [];
+
+        for(let i = 0; i < team.length; i++) {
+            if(battle != null) {
+                animClasses.push(getHeroAnimClass(teamIdx, i));
+            }
+            else {
+                return '';
+            }
         }
-        else if(type == 'penalty') {
-            return 'penalty-anim';
+        
+        return animClasses;
+    };
+
+    const getHeroAnimClass = (teamIdx: number, heroIdx: number) => {
+        if(step == teamIdx) {
+            let type;
+            try { type = (teamIdx == 0 ? battle.challengerStatBonuses : battle.opponentStatBonuses)[heroIdx].type; } catch(e){ return ''; }
+
+            if(type == 'bonus') {
+                return 'bonus-anim';
+            }
+            else if(type == 'penalty') {
+                return 'penalty-anim';
+            }
+            else {
+                return '';
+            }
         }
-        else {
-            return '';
+        else if(step % 2 == (1 - teamIdx)) {
+            return 'hit-anim';
         }
+    };
+
+    const getTeamRemarks = (teamIdx: number) => {
+        const emptyOfLen = (x: number) => { let a = []; for(let i = 0; i < x; i++) { a.push(''); } return a; }
+
+        if(!battle) {
+            return [];
+        }
+
+        if((step == 0 && teamIdx == step) || (step == 1 && teamIdx == step) || (step % 2 == (1 - teamIdx))) {
+            // return battle.steps[step].teamRemarks.reduce((all: any, r: any) => [...all, r.remark], []);
+
+            let remarks = [...emptyOfLen(battle.steps[step].teamRemarks.length)];
+
+            battle.steps[step].teamRemarks.forEach((r: any) => {
+                remarks[r.heroIndex] = r.remark;
+            });
+
+            console.log(remarks);
+
+            return remarks;
+        }
+
+        
+        // return (teamIdx == 0 ? battle.challengerTeam : battle.opponentTeam).reduce((all: any, r: any) => [...all, r.remark], []);
+        return [];
     }
-    else if(step % 2 == (1 - teamIdx)) {
-        return 'hit-anim';
-    }
-  };
+
+    const getHideStyle = (x: boolean) => {
+        return x == true ? 
+        {} : 
+        { color: 'transparent' };
+    };
 
   /*
     idx1: -1 <Start with initial stats>
@@ -195,59 +228,66 @@ function Battle() {
     ...
   */
 
-  const simulateBattle = async () => {
-    return await axios.post(`${URL}/battleground/battle`,
-      {
-        "challenger": "K00Lguy",
-        "challengerTeam": [-1, 6, 7],
-        "opponent": "johndoe1",
-        "opponentTeam": [8 , -1, 11]
-      })
-      .then(x => x.data)
-      .catch(err => {
-        console.error(err);
-        return null;
-      });
-  };
+    const simulateBattle = async () => {
+        return await axios.post(`${URL}/battleground/battle`,
+        {
+            "challenger": "K00Lguy",
+            "challengerTeam": [-1, 8, 7],
+            "opponent": "johndoe1",
+            "opponentTeam": [8 , -1, 11]
+        })
+        .then(x => x.data)
+        .catch(err => {
+            console.error(err);
+            return null;
+        });
+    };
 
-  useBattleEffects();
+    useBattleEffects();
 
-  return (
-    <div style={{margin: '0px 10px 0px 10px', transformOrigin: 'top left', transform: 'scale(var(--battle-view-scale))'}}>
-        {/* <p>Battle state: {battleFinished === true ? "done" : (battleFinished === false ? "running" : "unknown")}</p> */}
-      <button onClick={startBattle}>Challenge to battle!</button>
-      {/* <h1>{step}</h1> */}
-      {/* <h3>{`idx1: ${statIdx1} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}
-      {/* <h3>{`idx2: ${statIdx2} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}
-      <>
-        {battle != null ? (
-          <>
-            {/* <p>{
-                JSON.stringify(
-                    battle.steps.map((s: any) => {
-                        return s.teamStats.map((stats: any) => {
-                            return {dur: stats.durability, heal: stats.currentHealth};
-                        });
-                })
-                )
-            }</p> */}
-            {/* <p>{`${battle.challenger} challenges ${battle.opponent} to battle!`}</p> */}
+    return (
+        <div style={{margin: '0px 10px 0px 10px', transformOrigin: 'top left', transform: 'scale(var(--battle-view-scale))'}}>
+            {/* <p>Battle state: {battleFinished === true ? "done" : (battleFinished === false ? "running" : "unknown")}</p> */}
+        <button onClick={startBattle}>Challenge to battle!</button>
+        {/* <h1>{step}</h1> */}
+        {/* <h3>{`idx1: ${statIdx1} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}
+        {/* <h3>{`idx2: ${statIdx2} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}
+        <>
+            {battle != null ? (
+                !battle.code ? 
+            <>
+                {/* <p>{
+                    JSON.stringify(
+                        battle.steps.map((s: any) => {
+                            return s.teamStats.map((stats: any) => {
+                                return {dur: stats.durability, heal: stats.currentHealth};
+                            });
+                    })
+                    )
+                }</p> */}
+                {/* <p>{`${battle.challenger} challenges ${battle.opponent} to battle!`}</p> */}
 
-            {/* <h3>{`${battle.challenger}'s team:`}</h3> */}
-            <Team user={battle.challenger} team={battle.challengerTeam} targetLocation='above' animClasses={getTeamAnimClasses(0)} teamStats={ statIdx1 >= 0 ? battle.steps[statIdx1]?.teamStats : null }/>
+                {/* <h3>{`${battle.challenger}'s team:`}</h3> */}
+                <Team user={battle.challenger} team={battle.challengerTeam} targetLocation='above' teamRemarks={battle ? getTeamRemarks(0) : []} animClasses={getTeamAnimClasses(0)} teamStats={ statIdx1 >= 0 ? battle.steps[statIdx1]?.teamStats : null }/>
+                
+                <h2 style={{...getHideStyle(step >= 0 && step < battle.steps.length)}}>
+                    { !battleFinished ?
+                     step >= 0 && step < battle.steps.length ? battle.steps[step].globalRemarks[0] : '.' : 
+                     `${step % 2 == 0 ? battle.challenger : battle.opponent} wins!` 
+                    }
+                    </h2>
 
-            <h2>{ step >= 0 && step < battle.steps.length ? battle.steps[step].globalRemarks[0] : '' }</h2>
+                {/* <p>{`remarks: ${step >= 0 ? JSON.stringify(battle.steps[step]?.remarks) : "Not initialized"}`}</p> */}
 
-            {/* <p>{`remarks: ${step >= 0 ? JSON.stringify(battle.steps[step]?.remarks) : "Not initialized"}`}</p> */}
-
-            {/* <h3>{`${battle.opponent}'s team:`}</h3> */}
-            <Team user={battle.opponent} team={battle.opponentTeam} targetLocation='below' animClasses={getTeamAnimClasses(1)} teamStats={ statIdx2 >= 0 ? battle.steps[statIdx2]?.teamStats : null }/>
-            {/* <Team team={battle.opponentTeam} teamStats={ battle.steps[2].teamStats }/> */}
-          </>
-        ) : <></>}
-      </>
-    </div>
-  );
+                {/* <h3>{`${battle.opponent}'s team:`}</h3> */}
+                <Team user={battle.opponent} team={battle.opponentTeam} targetLocation='below' teamRemarks={battle ? getTeamRemarks(1) : []} animClasses={getTeamAnimClasses(1)} teamStats={ statIdx2 >= 0 ? battle.steps[statIdx2]?.teamStats : null }/>
+                {/* <Team team={battle.opponentTeam} teamStats={ battle.steps[2].teamStats }/> */}
+            </>
+            : <>{JSON.stringify(battle)}</>
+            ) : <></>}
+        </>
+        </div>
+    );
 }
 
 export default Battle

@@ -1,15 +1,19 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom'
 
 function UserProfile() {
+    const redux_jwt = useSelector((state: any) => state.user.jwt);
+
     const [user, setUser] = useState(null as any);
+    const [userTypeMessage, setUserTypeMessage] = useState('');
     let { username } = useParams();
 
     useEffect(() => {
         getUser((username as string) ? username as string : '')
         .then(x => { setUser(x); });
-    }, []);
+    }, [userTypeMessage]);
 
     async function getUser(username: string) {
         try {
@@ -17,7 +21,13 @@ function UserProfile() {
                 return null;
             }
 
-            let response = await axios.get(`http://localhost:4000/users/${username}`);
+            // let response = await axios.get(`http://localhost:4000/users/${username}`);
+            let response = await axios({
+                method: 'get',
+                url: `http://localhost:4000/users/${username}`,
+                headers: { 'Authorization': (redux_jwt ? `Bearer ${redux_jwt}` : '') }
+            });
+            setUserTypeMessage(response.data.message);
             const userObj = response && response.data && response.data.user ? response.data.user : null;
 
             return userObj;
@@ -31,6 +41,7 @@ function UserProfile() {
             {
                 user ?
                     <>
+                        <p>{userTypeMessage}</p>
                         <p>
                             User: {user.username}
                         </p>
