@@ -14,11 +14,13 @@ function NavBar(props: any) {
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         {props.pathArray.map((obj: any, index: any) => {
                             return (
+            
                                 <li key={index}>
                                     <Link className="nav-link" to={obj.path}>
                                         {obj.buttonName}
                                     </Link>
                                 </li>
+
                             );
                         })}
                     </ul>

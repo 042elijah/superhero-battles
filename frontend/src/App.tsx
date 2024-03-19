@@ -7,7 +7,8 @@ import Battle from './components/Battle/Battle';
 import ExploreUsersContainer from './components/ExploreUsersComp/ExploreUsersContainer';
 import UserProfile from './components/User/UserProfile';
 import HeroForm from './components/CustomHeroPage/HeroForm';
-import NavAndTabs from './components/BoostrapComp/NavAndTabs';
+import Home from './components/Home/Home';
+import NavBar from './components/Navbar/Navbar';
 
 
 function App() {
@@ -42,12 +43,15 @@ function App() {
       path: "/users",
       buttonName: "Users",
     },
+    {
+      path: "/leaderboard",
+      buttonName: "Leaderboard",
+    },
   ];
 
   return (
     <div>
-    <RegisterContainer/>
-    <NavAndTabs/>
+    <NavBar pathArray={pathArray}/>
     <Routes>
       <Route path='/' element={<Home/>}></Route>
       <Route path='/heroes' element={<GetAllImgs />}></Route>

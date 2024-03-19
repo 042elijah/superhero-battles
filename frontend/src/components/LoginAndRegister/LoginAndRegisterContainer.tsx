@@ -46,10 +46,6 @@ function RegisterContainer() {
                 username: username,
                 password: password
             });
-
-            if(response && response.status == 200 && response.data && response.data.token) {
-                dispatch(userActions.setJwt(response.data.token));
-            }
             
             setShow(false)
             setlogin(true)
