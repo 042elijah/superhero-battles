@@ -16,6 +16,12 @@ function Team(props: any) {
         gap: '0px'
     };
 
+    const getHideStyle = (x: boolean) => {
+        return x == true ? 
+        {} : 
+        { color: 'transparent' };
+    };
+
     const applyStatsToTeam = () => {
         let t: any[] = [];
         for(let i = 0; i < props.team.length; i++) {
@@ -37,7 +43,8 @@ function Team(props: any) {
 
     const Remarks = (props: any) => {
         return (
-            <p hidden={props.hidden} style={{ marginTop: '0px', marginBottom: '0px', backgroundColor: 'red', textAlign: 'center' }}>Remarks</p>
+            // <p hidden={props.hidden} style={{ marginTop: '0px', marginBottom: '0px', fontSize: '20px', /*backgroundColor: 'red',*/ textAlign: 'center' }}>{props.children}</p>
+            <p hidden={props.hidden} style={{ ...props.hideStyle, marginTop: '0px', marginBottom: '0px', fontSize: '20px', /*backgroundColor: 'red',*/ textAlign: 'center' }}>{props.children}</p>
         )
     };
 
@@ -54,10 +61,10 @@ function Team(props: any) {
                 {(team as string[]).map((x: any, idx: any) => {
                     // return <p key={x}>{x.name}</p>
                     return (
-                        <div style={colGridStyle}>
-                            <Remarks hidden={props.targetLocation != 'below'}></Remarks>
+                        <div key={`teamSlot_${x.name}`} style={colGridStyle}>
+                            <Remarks hidden={props.targetLocation != 'below'} hideStyle={getHideStyle(Boolean(props.teamRemarks && props.teamRemarks[idx]))}>{ props.teamRemarks && props.teamRemarks[idx] ? props.teamRemarks[idx] : '.' }</Remarks>
                             <HeroCard hero={{ ...resToHero(x) }} animClass={props.animClasses[idx]} />
-                            <Remarks hidden={props.targetLocation != 'above'}></Remarks>
+                            <Remarks hidden={props.targetLocation != 'above'} hideStyle={getHideStyle(Boolean(props.teamRemarks && props.teamRemarks[idx]))}>{ props.teamRemarks && props.teamRemarks[idx] ? props.teamRemarks[idx] : '.' }</Remarks>
                         </div>
 
                     );

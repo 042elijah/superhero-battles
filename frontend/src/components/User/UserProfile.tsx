@@ -1,18 +1,22 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux';
 
 function UserProfile() {
+    const redux_jwt = useSelector((state: any) => state.user.jwt);
+
     const [user, setUser] = useState(null as any);
+    const [userTypeMessage, setUserTypeMessage] = useState('');
     let { username } = useParams();
     // takes the value of the token stored during login. Must add to everything that requires auth
     const token = useSelector((auth: any) => auth.token.value);
 
     useEffect(() => {
         getUser((username as string) ? username as string : '')
-            .then(x => { setUser(x); });
-    }, []);
+        .then(x => { setUser(x); });
+    }, [userTypeMessage]);
 
     async function getUser(username: string) {
         try {
@@ -39,6 +43,7 @@ function UserProfile() {
             {
                 user ?
                     <>
+                        <p>{userTypeMessage}</p>
                         <p>
                             User: {user.username}
                         </p>
