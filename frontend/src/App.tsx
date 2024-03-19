@@ -41,14 +41,14 @@ function App() {
       path: "/usersearch",
       buttonName: "User Search",
     },
-    {
+    /*{
       path: "/users",
       buttonName: "Users",
     },
     {
       path: "/leaderboard",
       buttonName: "Leaderboard",
-    },
+    },*/
   ];
 
   return (

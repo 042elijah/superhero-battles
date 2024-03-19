@@ -104,7 +104,7 @@ router.get("/:username/customization", authUserOwnerPath, async (req, res) => {
 
 //needs: username param, complete hero{} in body
 router.put("/:username/customization", authUserOwnerPath, async (req, res) => {
-
+    
     let result = await customHeroService.putCustomHero({username: req.params.username, ...req.body});
 
     res.status(200).json({ result })

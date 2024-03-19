@@ -85,7 +85,7 @@ function findCustomHero (data) {
     
     for ( let i = 0; i < data.length; i++ ) {     //iterate through returned Items,
         if ( data[i].id.charAt(0) == 'c' ) { //find the id that starts with c
-            console.log(data[i]);
+            //console.log(data[i]);
             return data[i];       //and save it
         }
     }
