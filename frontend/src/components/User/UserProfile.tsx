@@ -52,11 +52,8 @@ function UserProfile() {
                             {`Wins: ${user.wins} Losses: ${user.losses}`}
                         </p>
                         <p>
-                            {`Followers: ${user.followers} Losses: ${user.following}`}
+                            {`Followers: ${user.followers} Following: ${user.following}`}
                         </p>
-                        <h3 style={{ color: 'red' }}>
-                            {'** In DB, need to change followers and following from {} (obj notation) to [] (array notation)'}
-                        </h3>
                     </>
                     : <></>
             }
