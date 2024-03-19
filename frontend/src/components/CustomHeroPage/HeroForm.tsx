@@ -9,6 +9,9 @@ export default function HeroForm() { //default values for hero
     const [formData, setFormData] = useState({ heroName: "", alignment: "", description: "", backstory: "", stats: 0, avatar: 0 });
 
     const token = useSelector((auth: any) => auth.token.value);
+    const user = useSelector((state: any) => state.token.username); //Get username from store (stays updated so only do once)
+    //console.log(`TOKEN: ${token}`);
+    //console.log(`USER: ${user}`);
     
     const { username } = useParams(); //gets the username out of /users/:username/customhero
 
@@ -51,14 +54,14 @@ export default function HeroForm() { //default values for hero
         event.preventDefault();
         putCustomHero({ ...formData })
         .then(response => {
-            console.log(`REGISTER RESPONSE: ${response}`);
+            //console.log(`REGISTER RESPONSE: ${JSON.stringify(response)}`);
         });
     };
 
-    async function putCustomHero(data: any) {
+    async function putCustomHero(data: any) { //put customHero into the db
         
         try {
-            console.log(` REGISTER: ${JSON.stringify(data)}`);
+            //console.log(` REGISTER: ${JSON.stringify(data)}`);
 
             let response = await axios.put(`http://localhost:4000/users/${username}/customization`, { 
                 headers: {
@@ -92,11 +95,7 @@ export default function HeroForm() { //default values for hero
 
                 <label htmlFor="alignment">
                     Alignment:
-                    <select id="alignment" name="alignment" value={formData.alignment} onChange={handleChange}>
-                        <option value="good">Good</option>
-                        <option value="bad">Bad</option>
-                        <option value="neutral">Neutral</option>
-                    </select>
+                    <input type="text" id="alignment" name="alignment" placeholder="good, bad, or evil" value={formData.alignment} onChange={handleChange}/>
                 </label>
 
                 <label htmlFor="description">Description:</label>
