@@ -3,7 +3,7 @@ import React, {useState} from 'react'
 function RegisterInput(props: any) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
+    
     function handleSubmit(event: any) {
         event.preventDefault();
         props.registerUser(username, password)

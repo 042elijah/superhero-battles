@@ -1,29 +1,37 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useSelector } from 'react-redux';
 
 function UserProfile() {
     const [user, setUser] = useState(null as any);
     let { username } = useParams();
+    // takes the value of the token stored during login. Must add to everything that requires auth
+    const token = useSelector((auth: any) => auth.token.value);
 
     useEffect(() => {
         getUser((username as string) ? username as string : '')
-        .then(x => { setUser(x); });
+            .then(x => { setUser(x); });
     }, []);
 
     async function getUser(username: string) {
         try {
-            if(!username) {
+            if (!username) {
                 return null;
             }
 
-            let response = await axios.get(`http://localhost:4000/users/${username}`);
+            let response = await axios.get(`http://localhost:4000/users/${username}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${token}` //puts token in the headers
+                    }
+                });
             const userObj = response && response.data && response.data.user ? response.data.user : null;
 
             return userObj;
         } catch (error) {
             console.log(error);
-        }        
+        }
     }
 
     return (
@@ -43,7 +51,7 @@ function UserProfile() {
                         <p>
                             {`Followers: ${user.followers} Losses: ${user.following}`}
                         </p>
-                        <h3 style={{color: 'red'}}>
+                        <h3 style={{ color: 'red' }}>
                             {'** In DB, need to change followers and following from {} (obj notation) to [] (array notation)'}
                         </h3>
                     </>

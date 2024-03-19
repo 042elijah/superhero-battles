@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import RegisterInput from './LoginAndRegisterInput'
 import axios from "axios";
+import { useDispatch, useSelector } from 'react-redux';
+import { userActions } from '../Redux/slices/userSlice';
 
 
 const URL = `http://localhost:4000`;
@@ -8,6 +10,13 @@ const URL = `http://localhost:4000`;
 function RegisterContainer() {
     const [show, setShow] = useState(false);
     const [loggedIn, setlogin] = useState(false);
+    const [auth, setAuth] = useState('')
+    let dispatcher = useDispatch();
+
+    useEffect(() => { 
+        console.log(auth)
+        dispatcher(userActions.setValue(auth));
+    }, [auth])
 
     async function registerUser(username: any, password: any) {
         
@@ -27,6 +36,7 @@ function RegisterContainer() {
         }
 
     }
+    
 
     async function loginUser(username: any, password: any) {
 
@@ -38,6 +48,9 @@ function RegisterContainer() {
             })
             setShow(false)
             setlogin(true)
+            
+            setAuth(`${response.data.token}`)
+            
             return response;
         } catch (error) {
             console.error(error);
@@ -51,6 +64,7 @@ function RegisterContainer() {
         <RegisterInput registerUser={registerUser} loginUser={loginUser} />
           {show && (<>Registration Complete</>)}
           {loggedIn && (<>Logged In</>)}
+        
     </div>
   )
 }
