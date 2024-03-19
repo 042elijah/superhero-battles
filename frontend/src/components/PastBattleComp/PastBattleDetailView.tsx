@@ -1,11 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function PastBattleDetailView(props:any) {
     
     return (
-        <>
-            {props.record && <ul>{props.record}</ul>}
-        </>
+
+        //{props.leaderboard && <ul>{props.leaderboard}</ul>}
+        <ul>
+        {
+            props.record && (props.record as any[]).map((record: any, index: number) => {
+                return <li key={'li_' + record.username}>{`${record.username} ${record.alignment} ${record.wins}` }</li>;
+            })
+        }
+        </ul>
+
     )
 }
 

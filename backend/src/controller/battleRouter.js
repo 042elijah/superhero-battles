@@ -13,7 +13,9 @@ const pastBattleService = require("../service/pastBattleService");
 // })
 
 router.get("/leaderboard", async (req, res) => {
-    res.status(200).json({ message: `get battleground leaderboard endpoint reached` })
+    
+    const data = await pastBattleService.getLeaderBoard();
+    res.status(200).json(data);
 })
 
 // router.get("/battles/:battleID", async (req, res) => {
@@ -52,7 +54,6 @@ router.get("/record/:username/:battleID", async(req, res) => {
     
     const battleID = req.params.battleID;
     const username = req.params.username;
-    console.log(battleID);
 
     if(battleID && username){
        const data = await pastBattleService.getPastBattleByBattleID(username, battleID);
