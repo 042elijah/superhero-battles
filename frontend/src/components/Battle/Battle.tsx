@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { tryPromise, resToHero } from '../util/util';
-import HeroCard from '../HeroCard';
 import Team from './Team';
+import { useSelector } from 'react-redux';
+
+const SALT_ROUNDS = 10;
+const SECRET_KEY = 'your-secret-key';
 
 const URL = `http://localhost:4000`;
 
@@ -12,6 +15,9 @@ function Battle() {
     const [battle, setBattle] = useState(null as any);
     // Need separate hook for step or else the whole state will get changed when only step changes and cause flickering (because whole screen re-renders at once)
     const [step, setStep] = useState(-2);
+
+    const token = useSelector((state: any) => state.token.value);
+    const username = useSelector((state: any) => state.token.username);
 
     const [statIdx1, setStatIdx1] = useState(-1);
     const [statIdx2, setStatIdx2] = useState(-1);
@@ -161,13 +167,12 @@ function Battle() {
             else if(type == 'penalty') {
                 return 'penalty-anim';
             }
-            else {
-                return '';
-            }
         }
-        else if(step % 2 == (1 - teamIdx)) {
+        else if(step > 1 && step % 2 == (1 - teamIdx)) {
             return 'hit-anim';
         }
+        
+        return '';
     };
 
     const getTeamRemarks = (teamIdx: number) => {
@@ -177,7 +182,7 @@ function Battle() {
             return [];
         }
 
-        if((step == 0 && teamIdx == step) || (step == 1 && teamIdx == step) || (step % 2 == (1 - teamIdx))) {
+        if((step == 0 && teamIdx == step) || (step == 1 && teamIdx == step)|| (step > 1 && step % 2 == (1 - teamIdx))) {
             // return battle.steps[step].teamRemarks.reduce((all: any, r: any) => [...all, r.remark], []);
 
             let remarks = [...emptyOfLen(battle.steps[step].teamRemarks.length)];
@@ -185,8 +190,6 @@ function Battle() {
             battle.steps[step].teamRemarks.forEach((r: any) => {
                 remarks[r.heroIndex] = r.remark;
             });
-
-            console.log(remarks);
 
             return remarks;
         }
@@ -248,7 +251,8 @@ function Battle() {
     return (
         <div style={{margin: '0px 10px 0px 10px', transformOrigin: 'top left', transform: 'scale(var(--battle-view-scale))'}}>
             {/* <p>Battle state: {battleFinished === true ? "done" : (battleFinished === false ? "running" : "unknown")}</p> */}
-        <button onClick={startBattle}>Challenge to battle!</button>
+            <p>{`Signed in as ${username ? username : 'guest'}`}</p>
+        <button hidden={battle != null } onClick={startBattle}>Challenge to battle!</button>
         {/* <h1>{step}</h1> */}
         {/* <h3>{`idx1: ${statIdx1} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}
         {/* <h3>{`idx2: ${statIdx2} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}
