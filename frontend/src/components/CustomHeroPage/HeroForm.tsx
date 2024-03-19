@@ -67,7 +67,7 @@ export default function HeroForm() { //default values for hero
                 <UserLink username={username}/>
 
                 <label htmlFor="heroName">Name:</label>
-                <input type="text" id="heroName" name="heroName" value={formData.heroName} onChange={handleChange}/>
+                <input type="text" id="heroName" name="heroName" placeholder="Your hero's name" value={formData.heroName} onChange={handleChange}/>
 
                 <label htmlFor="alignment">
                     Alignment:
@@ -79,10 +79,10 @@ export default function HeroForm() { //default values for hero
                 </label>
 
                 <label htmlFor="description">Description:</label>
-                <textarea id="description" name="description" value={formData.description} onChange={handleChange}/>
+                <textarea id="description" name="description" placeholder="Description of your hero" value={formData.description} onChange={handleChange}/>
 
                 <label htmlFor="backstory">Backstory:</label>
-                <textarea id="backstory" name="backstory" value={formData.backstory} onChange={handleChange}/>
+                <textarea id="backstory" name="backstory" placeholder="Your hero's backstory" value={formData.backstory} onChange={handleChange}/>
 
                 <label htmlFor="stats">Stats ID:</label>
                 <input type="number" min="1" max="731" id="stats" name="stats" value={formData.stats} onChange={handleChange}/>
