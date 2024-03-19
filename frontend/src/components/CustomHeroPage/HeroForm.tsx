@@ -1,18 +1,21 @@
 import axios from 'axios';
-import { useState, useEffect } from "react";
-import { useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useParams, Link } from 'react-router-dom';
+
 
 export default function HeroForm() { //default values for hero
 
     const [formData, setFormData] = useState({ heroName: "", alignment: "", description: "", backstory: "", stats: 0, avatar: 0 });
 
-    let { username } = useParams(); //gets the username out of /users/:username/customhero
+    const token = useSelector((auth: any) => auth.token.value);
+    
+    const { username } = useParams(); //gets the username out of /users/:username/customhero
 
 
     useEffect(() => { //initializes formData to be the user's hero
         getCustomHero((username as string) ? username as string : '') //get custom hero data from db
         .then(response => { 
-            console.log(response); 
             setFormData((prevFormData) => ({ ...prevFormData, ...response }));
         });
     }, []);
@@ -32,7 +35,7 @@ export default function HeroForm() { //default values for hero
                 return null;
 
         } catch (error) {
-            console.error(error);
+            console.error(`ERROR!: ${error}`);
         }        
     };
 
@@ -46,16 +49,34 @@ export default function HeroForm() { //default values for hero
     const handleSubmit = (event: any) => { //submits new formData to DAO on pressing of submit button
 
         event.preventDefault();
-        alert(`            Name: ${formData.heroName}, 
-                Alignment: ${formData.alignment}, 
-                Description: ${formData.description}, 
-                Backstory: ${formData.backstory}, 
-                Stats: ${formData.stats}, 
-                Avatar: ${formData.avatar}`);
+        putCustomHero({ ...formData })
+        .then(response => {
+            console.log(`REGISTER RESPONSE: ${response}`);
+        });
     };
 
+    async function putCustomHero(data: any) {
+        
+        try {
+            console.log(` REGISTER: ${JSON.stringify(data)}`);
 
-   // if(loggedIn) { //how do we tell if we're logged in?
+            let response = await axios.put(`http://localhost:4000/users/${username}/customization`, { 
+                headers: {
+                    Authorization: `Bearer ${token}` //puts token in the headers
+                },
+                data 
+            });
+
+            return response;
+
+        } catch (error) {
+            console.error(`ERROR!: ${error}`);
+        }
+
+    }
+
+
+   if(token) { //how do we tell if we're logged in?
         return (
             <form onSubmit={handleSubmit}>
 
@@ -90,19 +111,20 @@ export default function HeroForm() { //default values for hero
                 <button type="submit">Submit</button>
             </form>
         );
-   /* }
+    }
     else {
         return (
             <div>
-                <HeroAvatar></HeroAvatar>
-                <p id="heroName"> {formData.heroName} </p>
-                <p id="alignment"> {formData.alignment} </p>
-                <p id="description"> {formData.description} </p>
-                <p id="backstory"> {formData.backstory} </p>
-                <p id="stats"> {formData.stats} </p>
+                <h1 id="heroName"> Name: {formData.heroName} </h1>
+                <HeroAvatar id={formData.avatar}/>
+                <UserLink username={username}/>
+                <p id="alignment"> Moral alignment: {formData.alignment} </p>
+                <p id="description"> Description: {formData.description} </p>
+                <p id="backstory"> Backstory: {formData.backstory} </p>
+                <p id="stats"> Stats: {formData.stats} </p>
             </div>
         );
-    }*/
+    }
 }
 
 
@@ -112,7 +134,7 @@ function HeroAvatar({id = 0}) {
 
     return (
         <div>
-            <img id="heroAvatar" alt="Custom Superhero Avatar" style={{width:"500px", height:"600px"}} src={path} />
+            <img id="heroAvatar" alt="Custom Superhero Avatar" style={{width:"500px", height:"500px"}} src={path} />
         </div>
     );
 }
@@ -122,8 +144,8 @@ function UserLink({username=""}) {
     let path = `http://localhost:3000/users/${username}`;
 
     return (
-        <div>
-            <p>Created by <a href={path}>{username}</a></p>
-        </div>
+        <Link className="nav-link" to={path}>
+            Created by {username}
+        </Link>
     );
 }
