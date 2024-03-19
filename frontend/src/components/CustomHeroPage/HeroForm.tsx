@@ -4,13 +4,13 @@ import { useParams } from 'react-router-dom'
 
 export default function HeroForm() { //default values for hero
 
-    const [formData, setFormData] = useState({ heroName: "", alignment: "", description: "", backstory: "", stats: 0 });
+    const [formData, setFormData] = useState({ heroName: "", alignment: "", description: "", backstory: "", stats: 0, avatar: 0 });
 
     let { username } = useParams(); //gets the username out of /users/:username/customhero
 
 
     useEffect(() => { //initializes formData to be the user's hero
-        getCustomHero((username as string) ? username as string : '')
+        getCustomHero((username as string) ? username as string : '') //get custom hero data from db
         .then(response => { 
             console.log(response); 
             setFormData((prevFormData) => ({ ...prevFormData, ...response }));
@@ -50,7 +50,8 @@ export default function HeroForm() { //default values for hero
                 Alignment: ${formData.alignment}, 
                 Description: ${formData.description}, 
                 Backstory: ${formData.backstory}, 
-                Stats: ${formData.stats}`);
+                Stats: ${formData.stats}, 
+                Avatar: ${formData.avatar}`);
     };
 
 
@@ -58,7 +59,11 @@ export default function HeroForm() { //default values for hero
         return (
             <form onSubmit={handleSubmit}>
 
-                <HeroAvatar/>
+                <HeroAvatar id={formData.avatar}/>
+                
+                <label htmlFor="avatar">Avatar ID:</label>
+                <input type="number" min="0" max="6" id="avatar" name="avatar" value={formData.avatar} onChange={handleChange}/>
+
                 <UserLink username={username}/>
 
                 <label htmlFor="heroName">Name:</label>
@@ -101,10 +106,13 @@ export default function HeroForm() { //default values for hero
 }
 
 
-function HeroAvatar() {
+function HeroAvatar({id = 0}) {
+
+    let path = require(`../../img/hero-avatars/hero_${id}.png`);
+
     return (
         <div>
-            <img id="heroAvatar" alt="Custom Superhero" src="../img/hero_avatars/hero-0.png" />
+            <img id="heroAvatar" alt="Custom Superhero Avatar" style={{width:"500px", height:"600px"}} src={path} />
         </div>
     );
 }
