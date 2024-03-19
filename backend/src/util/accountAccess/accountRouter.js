@@ -23,6 +23,8 @@ router.post("/", async (req, res) => {
         
         if (loggedIn) {
             const { success, user, token } = loggedIn;
+            res.cookie('token', token).send
+            res.cookie('user', user.username).send
             res.json({ message: `Signed in as ${user.username}`, token, user });
         }
         else {
