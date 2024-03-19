@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom';
 
 function UserProfile() {
 
@@ -54,11 +54,25 @@ function UserProfile() {
                         <p>
                             {`Followers: ${user.followers} Following: ${user.following}`}
                         </p>
+                        <p>
+                            <CustomHeroLink username={username}/>
+                        </p>
                     </>
                     : <></>
             }
         </div>
     )
+}
+
+function CustomHeroLink({username=""}) {
+
+    let path = `http://localhost:3000/users/${username}/customhero`;
+
+    return (
+        <Link className="nav-link" to={path}>
+            See my Custom Hero!
+        </Link>
+    );
 }
 
 export default UserProfile
