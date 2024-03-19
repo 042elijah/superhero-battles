@@ -9,6 +9,8 @@ import UserProfile from './components/User/UserProfile';
 import HeroForm from './components/CustomHeroPage/HeroForm';
 import Home from './components/Home/Home';
 import NavBar from './components/Navbar/Navbar';
+import Leaderboard from './components/LeaderboardComp/Leaderboard';
+import LeaderboardContainer from './components/LeaderboardComp/LeaderboardContainer';
 
 
 function App() {
@@ -59,6 +61,7 @@ function App() {
       <Route path='/usersearch' element={<ExploreUsersContainer />}></Route>
       <Route path='/users/:username' element={<UserProfile />}></Route>
       <Route path='/users/:username/customhero' element={<HeroForm />}></Route>
+      <Route path='/leaderboard' element={<LeaderboardContainer />} /><Route/>
     </Routes>
   </div>
   );
