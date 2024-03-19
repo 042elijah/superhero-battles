@@ -20,7 +20,7 @@ router.get("/usersearch", authUserAllowGuest, async (req, res) => {
             if (dbResponse.Items[i] && ("password" in dbResponse.Items[i])) delete dbResponse.Items[i].password;
         }
         
-        res.status(200).json({ message: 'Got all users', users: dbResponse.Items });
+        res.status(200).json({ message: 'Got all users', users: dbResponse.Items, userStatus: req.userStatus });
     }
 });
 

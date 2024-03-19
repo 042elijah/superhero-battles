@@ -59,6 +59,11 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
         return { code: 404, message: 'User not found' };
     }
 
+    let invalidHeroes = await getInvalidHeroes([...challengerTeam, ...opponentTeam]);
+    if(invalidHeroes) {
+        return { code: 400, message: `The following hero IDs reference heroes with missing stats: ${invalidHeroes}` }
+    }
+
     let team1 = {
         username: challenger,
         heroIds: challengerTeam.toSorted((a, b) => a - b),
@@ -147,6 +152,29 @@ module.exports = {
 
 
 
+async function getInvalidHeroes(heroIds) {
+    let invalidHeroes = [];
+
+    for(id of heroIds) {
+        // Allow negatives (because negative ID represents a custom hero; the system detects it and loads a custom hero so it is ok to 
+        // allow negative IDs here)
+        if(id < 0) {
+            continue;
+        }
+
+        let hero = await apiHeroService.getApiHero(id);
+        if(!validate.validateHero(hero)) {
+            invalidHeroes.push(id);
+        }
+    }
+
+    if(invalidHeroes.length > 0) {
+        return invalidHeroes;
+    }
+    else {
+        return null;
+    }
+}
 
 /**
     @returns
@@ -293,9 +321,7 @@ function getAliveHeroesCount(heroes) {
             count++;
         }
     }
-
-    console.log('\n');
-
+    
     return count;
 }
 
@@ -343,14 +369,13 @@ function awardStatBonusStep(activeTeam) {
 
     for(const bonus of statBonuses) {
         const hero = activeTeam.heroes[bonus.heroIndex];
-        console.log('Hero before bonus:');
-        console.log(hero.name);
-        console.log(hero.powerstats);
-        console.log('After bonus');
         activeTeam.heroes[bonus.heroIndex] = applyStatBonus(hero, bonus); // This may be unneeded as it changes the obj that it references (?)
-        console.log(activeTeam.heroes[bonus.heroIndex].powerstats);
         // step.remarks.push(`${hero.name}: ${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`);
-        step.teamRemarks.push({heroIndex: bonus.heroIndex, remark: `${hero.name}: ${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`});
+
+        // step.teamRemarks.push({heroIndex: bonus.heroIndex, remark: `${hero.name}: ${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`});
+
+        // Shorter remark; since the remarks are shown above the hero they correspond to, the name is not needed
+        step.teamRemarks.push({heroIndex: bonus.heroIndex, remark: `${ALIGNMENT_BONUS_PERCENT}% ${bonus.reason} ${bonus.type}`});
     }
 
     step.teamStats = activeTeam.heroes.reduce((stats, hero) => [...stats, {...hero.powerstats}], []);
@@ -373,8 +398,10 @@ function calculateBattleStep(activeTeam, otherTeam) {
     // battleStep.remarks.push(`Damage wildcard: ${randStat}`);
     // battleStep.remarks.push(`${activeTeam.username} team: does ${totalDamage} damage`);
 
-    battleStep.globalRemarks.push(`Damage wildcard: ${randStat}`),
-    battleStep.globalRemarks.push(`${activeTeam.username} team: does ${totalDamage} damage`);
+    // battleStep.globalRemarks.push(`Damage wildcard: ${randStat}`),
+    // battleStep.globalRemarks.push(`${activeTeam.username} team: does ${totalDamage} damage`);
+
+    battleStep.globalRemarks.push(`${activeTeam.username}: does ${totalDamage} ${randStat} damage`);
 
     // Only divide damage by the total number of living heroes on the opposing team
     const damageDivider = getAliveHeroesCount(otherTeam.heroes);
@@ -394,17 +421,18 @@ function calculateBattleStep(activeTeam, otherTeam) {
             // newStats.durability = Math.round(newStats.durability - damage);
             newStats.currentHealth = Math.round(newStats.currentHealth - damage);
             
-            console.log(`[${hero.name}] DUR: ${newStats.durability}; HEAL: ${newStats.currentHealth}`);
-
             // battleStep.teamRemarks.push(`${hero.name}: takes ${Math.round(damage)} damage`);
-            battleStep.teamRemarks.push({ heroIndex: i, remark: `${hero.name}: takes ${Math.round(damage)} damage` });
+            // battleStep.teamRemarks.push({ heroIndex: i, remark: `${hero.name}: takes ${Math.round(damage)} damage` });
+
+            // Shorter remark; since the remarks are shown above the hero they correspond to, the name is not needed
+            battleStep.teamRemarks.push({ heroIndex: i, remark: `${Math.round(damage)} damage` });
 
             // if(newStats.durability <= 0) {
             if(newStats.currentHealth <= 0) {
                 // newStats.durability = 0;
                 newStats.currentHealth = 0;
                 // battleStep.remarks.push(`${hero.name}: dies`);
-                battleStep.teamRemarks.push({ heroIndex: i, remark: `${hero.name}: dies` });
+                // battleStep.teamRemarks.push({ heroIndex: i, remark: `${hero.name}: dies` }); // The slash overlay on the card makes this obvious
 
             }
         }
