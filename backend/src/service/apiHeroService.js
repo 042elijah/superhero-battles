@@ -19,6 +19,18 @@ async function getApiHero(id) {
     return hero;
 }
 
+async function getRandomApiHero() {
+    let h;
+
+    do {
+        h = await apiHeroDao.getRandomApiHero();
+    }
+    while(!validate.validateHero(h));
+
+    return h;
+}
+
 module.exports = {
-    getApiHero
+    getApiHero,
+    getRandomApiHero
 };

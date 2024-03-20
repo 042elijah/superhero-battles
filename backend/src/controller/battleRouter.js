@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router();
 
 const pastBattleService = require("../service/pastBattleService");
-const auth = require("../util/accountAccess/auth")
+const apiHeroService = require("../service/apiHeroService");
 
 
 // router.post("/", async (req, res) => {
@@ -35,6 +35,17 @@ router.post('/battle', auth.authUser, async (req, res) => {
     let battle = await pastBattleService.simulateBattle({ challenger, challengerTeam }, { opponent, opponentTeam });
     
     res.json(battle);
+});
+
+router.get('/randomHero', async (req, res) => {
+    let randomHero = await apiHeroService.getRandomApiHero();
+
+    if(randomHero) {
+        res.json(randomHero);
+    }
+    else {
+        res.status(404).send({ message: 'Could not get random hero' });
+    }
 });
 
 // get the past battle records by username

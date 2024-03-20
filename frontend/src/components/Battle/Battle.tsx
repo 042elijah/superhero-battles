@@ -269,7 +269,13 @@ function Battle() {
         
         {
             requestedBattle && requestedBattle.challenger ?
-            <button hidden={battle != null } onClick={startBattle}>Start battle!</button> :
+            <button hidden={battle != null } onClick={startBattle}>Start battle!</button>
+            :
+            username ? 
+            <Link className="nav-link" to={'/usersearch'} style={{ display: 'inline-block' }}>
+                <button>Find a user to battle!</button>
+            </Link>
+            :
             <Link className="nav-link" to={'/'} style={{ display: 'inline-block' }}>
                 <button>Log in to battle!</button>
             </Link>
