@@ -46,6 +46,12 @@ function RegisterContainer() {
                 username: username,
                 password: password
             });
+
+            if(response && response.status == 200 && response.data && response.data.token) {
+                dispatcher(userActions.setValue(response.data.token));
+                console.log(response.data.user.username);
+                dispatcher(userActions.setUsername(response.data.user.username));
+            }
             
             setShow(false)
             setlogin(true)

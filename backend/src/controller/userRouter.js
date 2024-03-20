@@ -95,7 +95,7 @@ router.get("/:username/customhero", authUserAllowGuest, async (req, res) => {
 
 // Custom user hero access and customization
 //needs: username param
-router.get("/:username/customization", authUserOwnerPath, async (req, res) => {
+router.get("/:username/customization", authUserAllowGuest, async (req, res) => {
 
     const data = await customHeroService.getCustomHero(req.params.username);
 
@@ -103,9 +103,10 @@ router.get("/:username/customization", authUserOwnerPath, async (req, res) => {
 })
 
 //needs: username param, complete hero{} in body
-router.put("/:username/customization", authUserOwnerPath, async (req, res) => {
-
-    let result = await customHeroService.putCustomHero({username: req.params.username, ...req.body});
+router.put("/:username/customization", authUserAllowGuest, async (req, res) => {
+    
+    //console.log(JSON.stringify(req.body.data));
+    let result = await customHeroService.putCustomHero({username: req.params.username, ...req.body.data});
 
     res.status(200).json({ result })
 })

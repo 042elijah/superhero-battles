@@ -24,12 +24,17 @@ async function getPastBattleByUsername(username) {
 async function getPastBattleByBattleID(username, battleID) {
     if(battleID){
         const data = await pastBattleDAO.getPastBattleByBattleID(username, battleID);
-        console.log(battleID)
         return data;
     }
     else{
         throw new Error("missing battle id/username or falsy value exists!")
     }
+}
+
+async function getLeaderBoard() {
+    const data = await pastBattleDAO.getLeaderBoard();
+
+    return data;
 }
 
 /**
@@ -134,6 +139,7 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
 module.exports = {
     getPastBattleByUsername,
     getPastBattleByBattleID,
+    getLeaderBoard,
     simulateBattle
 }
 

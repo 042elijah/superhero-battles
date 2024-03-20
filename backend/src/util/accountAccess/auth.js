@@ -88,6 +88,7 @@ async function hashPassword(password) {
 }
 
 async function validatePassword(password, user){
+    if(!user || !password || !typeof user === 'string' || !typeof password === 'string') return false;
     const validity = await bcrypt.compare(password, user.password);
     // returns true or false
     return validity;

@@ -55,10 +55,10 @@ function checkHero(hero) {
     if (!isGoodBadOrNeutral(hero.alignment)) //verify hero alignment is valid
         return {username: hero.username, success: false, message: "heroData.alignment field must be good, neutral, or bad!", hero};
 
-    if (!Number.isInteger(hero.stats) || hero.stats <= 0 || hero.stats > 731) //verify stats is a valid number
+    if (isNaN(hero.stats) || hero.stats <= 0 || hero.stats > 731) //verify stats is a string containing a number
         return {username: hero.username, success: false, message: "heroData.stats field must be a valid heroAPI id!", hero};
 
-    if (!Number.isInteger(hero.avatar) || hero.avatar < 0) //verify stats is a valid number
+    if (isNaN(hero.avatar) || hero.avatar < 0) //verify stats is a string containing a number
         return {username: hero.username, success: false, message: "heroData.avatarID field must be a valid id!", hero};
 
     return {
@@ -71,9 +71,9 @@ function checkHero(hero) {
             backstory: hero.backstory,
             description: hero.description,
             alignment: hero.alignment,
-            stats: hero.stats,
+            stats: Number(hero.stats),
             id: hero.id,
-            avatar: hero.avatar
+            avatar: Number(hero.avatar)
         }};
 }
 

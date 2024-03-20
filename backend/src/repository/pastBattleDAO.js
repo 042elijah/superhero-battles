@@ -65,7 +65,28 @@ async function getPastBattleByBattleID(username, battleID) {
     }
 }
 
+async function getLeaderBoard() {
+    const command = new QueryCommand({
+        TableName : "superhero-battles-db",
+        IndexName : "id-wins-index",
+        KeyConditionExpression: "#key = :value",
+        ExpressionAttributeNames: { "#key": "id" },
+        ExpressionAttributeValues: { ":value": 'user' },
+        Limit : 10,
+        ScanIndexForward : false,
+        ProjectionExpression : "username, alignment, wins",
+    })
+    try {
+        const data = await documentClient.send(command);
+        return data.Items;
+    } catch (error) {
+        
+    }
+
+}
+
 module.exports = {
     getPastBattleByUsername,
-    getPastBattleByBattleID
+    getPastBattleByBattleID,
+    getLeaderBoard
 }
