@@ -79,7 +79,7 @@ export default function HeroForm() { //default values for hero
     }
 
 
-   if(token) { //how do we tell if we're logged in?
+   if( token && user === username ) { //how do we tell if we're logged in?
         return (
             <form onSubmit={handleSubmit}>
 
