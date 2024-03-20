@@ -4,7 +4,7 @@ import { tryPromise, resToHero } from '../util/util';
 import HeroCard from '../HeroCard';
 import Team from './Team';
 
-const URL = `http://localhost:4000`;
+const URL = `http://3.137.160.227:4000`;
 
 function Battle() {
     // Since battle holds a lot of data, might need to separate it in different hooks (or else can cause flickering when only want one thing to change)
