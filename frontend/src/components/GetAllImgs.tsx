@@ -10,11 +10,20 @@ function GetAllImgs() {
     // const numImages = 40;
     
     const getRandomArray = (min: number, max: number, len: number) => {
-        let arr = [];
+        let arr: number[] = [];
 
-        // for(let i = 0; i < len; i++) {
-        //     const x = Math.random() * max + min
-        // }
+        for(let i = 0; i < len; i++) {
+            const x = Math.floor(Math.random() * (max - min) + min);
+
+            if(arr.includes(x)) {
+                i--;
+                continue;
+            }
+
+            arr.push(x);
+        }
+
+        return arr;
     };
 
     useEffect(() => {
@@ -23,11 +32,11 @@ function GetAllImgs() {
 
     const getHeroes = async () => {
 
-
+        const randomIds = getRandomArray(0, 567, 20);
 
         let newHeroes: Hero[] = [];
         // for(let i = imageStart; i < imageStart + numImages; i++) {
-        for(let i = imageStart; i < imageStart + numImages; i++) {
+        for(let i of randomIds) {
             const url = `https://www.superheroapi.com/api.php/122100753632232992/${i}`;
             
             await fetch(url)
@@ -67,7 +76,7 @@ function GetAllImgs() {
 
     return (
         <>
-        <p>Here are some heroes from the <a href='https://superheroapi.com/'>SuperHero API</a></p>
+        <p style={{marginLeft: '10px'}}>Here are some heroes from the <a href='https://superheroapi.com/'>SuperHero API</a></p>
 
         {!heroes || heroes.length == 0 ?
             <p style={{fontSize: '30px'}}>Loading heroes...</p>
