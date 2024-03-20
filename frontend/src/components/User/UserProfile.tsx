@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import { requestedBattleActions } from '../Redux/slices/requestedBattleSlice';
 import HeroForm from '../CustomHeroPage/HeroForm';
+import { URL } from '../../App';
 
 function UserProfile() {
 
@@ -65,7 +66,7 @@ function UserProfile() {
             //console.log(` REGISTER: ${JSON.stringify(data)}`);
             axios({
                 method: 'put',
-                url: `http://localhost:4000/users/${username}`,
+                url: `${URL}/users/${username}`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Authorization': `Bearer ${token}` //puts token in the headers
