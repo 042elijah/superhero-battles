@@ -1,7 +1,8 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
+import { requestedBattleActions } from '../Redux/slices/requestedBattleSlice';
 
 function UserProfile() {
 
@@ -10,6 +11,9 @@ function UserProfile() {
     let { username } = useParams();
     // takes the value of the token stored during login. Must add to everything that requires auth
     const token = useSelector((auth: any) => auth.token.value);
+    const loggedInUser = useSelector((auth: any) => auth.token.username);
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         getUser((username as string) ? username as string : '')
@@ -36,6 +40,26 @@ function UserProfile() {
         }
     }
 
+    const request1v1 = () => {
+        dispatch(requestedBattleActions.setRequestedBattle({
+            challenger: loggedInUser,
+            // -1 denotes custom hero
+            challengerTeam: [-1], 
+            opponent: username,
+            opponentTeam: [-1]
+        }));
+    };
+
+    const request3v3 = () => {
+        dispatch(requestedBattleActions.setRequestedBattle({
+            challenger: loggedInUser,
+            // -1 denotes custom hero
+            challengerTeam: [-1, 5, 8], 
+            opponent: username,
+            opponentTeam: [-1, 11, 14]
+        }));
+    };
+
     return (
         <div>
             {
@@ -54,9 +78,32 @@ function UserProfile() {
                         <p>
                             {`Followers: ${user.followers} Following: ${user.following}`}
                         </p>
-                        <p>
+                        <div>
                             <CustomHeroLink username={username}/>
-                        </p>
+
+                            <br />
+                            <br />
+                            
+                            {loggedInUser ? 
+                            (
+                                <>
+                                    <Link className="nav-link" to={'/battle'} onClick={request1v1} style={{ display: 'inline-block' }}>
+                                        <button>1v1 me</button>
+                                    </Link>
+
+                                    <br />
+                                    <br />
+
+                                    <Link className="nav-link" to={'/battle'} onClick={request3v3} style={{ display: 'inline-block' }}>
+                                        <button>3v3 me</button>
+                                    </Link>
+                                </>
+                            ) :
+                            <Link className="nav-link" to={'/'} style={{ display: 'inline-block' }}>
+                                <button>Log in to battle {username}!</button>
+                            </Link>
+                            }
+                        </div>
                     </>
                     : <></>
             }
@@ -69,9 +116,11 @@ function CustomHeroLink({username=""}) {
     let path = `http://localhost:3000/users/${username}/customhero`;
 
     return (
-        <Link className="nav-link" to={path}>
-            See my Custom Hero!
-        </Link>
+            // Display inline block allows React Link to not be 100%
+            // (https://stackoverflow.com/a/72326049)
+            <Link className="nav-link" to={path} style={{display: 'inline-block'}}>
+                <button>See my Custom Hero!</button>
+            </Link>
     );
 }
 

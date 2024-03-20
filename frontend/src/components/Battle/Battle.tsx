@@ -3,6 +3,7 @@ import axios from "axios";
 import { tryPromise, resToHero } from '../util/util';
 import Team from './Team';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 const SALT_ROUNDS = 10;
 const SECRET_KEY = 'your-secret-key';
@@ -18,6 +19,7 @@ function Battle() {
 
     const token = useSelector((state: any) => state.token.value);
     const username = useSelector((state: any) => state.token.username);
+    const requestedBattle = useSelector((state: any) => state.requestedBattle);
 
     const [statIdx1, setStatIdx1] = useState(-1);
     const [statIdx2, setStatIdx2] = useState(-1);
@@ -232,13 +234,19 @@ function Battle() {
   */
 
     const simulateBattle = async () => {
+        if(!requestedBattle || !requestedBattle.challenger) {
+            return;
+        }
+
         return await axios.post(`${URL}/battleground/battle`,
-        {
-            "challenger": "K00Lguy",
-            "challengerTeam": [-1, 8, 7],
-            "opponent": "johndoe1",
-            "opponentTeam": [8 , -1, 11]
-        })
+        requestedBattle
+        // {
+        //     "challenger": "K00Lguy",
+        //     "challengerTeam": [-1, 8, 7],
+        //     "opponent": "johndoe1",
+        //     "opponentTeam": [8 , -1, 11]
+        // }
+        )
         .then(x => x.data)
         .catch(err => {
             console.error(err);
@@ -252,7 +260,20 @@ function Battle() {
         <div style={{margin: '0px 10px 0px 10px', transformOrigin: 'top left', transform: 'scale(var(--battle-view-scale))'}}>
             {/* <p>Battle state: {battleFinished === true ? "done" : (battleFinished === false ? "running" : "unknown")}</p> */}
             <p>{`Signed in as ${username ? username : 'guest'}`}</p>
-        <button hidden={battle != null } onClick={startBattle}>Challenge to battle!</button>
+
+            <>
+                { requestedBattle && requestedBattle.challenger ? 
+                <p>{`${requestedBattle.challenger} challenges ${requestedBattle.opponent} to battle!`}</p> :
+                <p>No battle requested</p>}
+            </>
+        
+        {
+            requestedBattle && requestedBattle.challenger ?
+            <button hidden={battle != null } onClick={startBattle}>Start battle!</button> :
+            <Link className="nav-link" to={'/'} style={{ display: 'inline-block' }}>
+                <button>Log in to battle!</button>
+            </Link>
+        }
         {/* <h1>{step}</h1> */}
         {/* <h3>{`idx1: ${statIdx1} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}
         {/* <h3>{`idx2: ${statIdx2} / ${battle != null ? battle.steps.length - 1 : '?'}`}</h3> */}

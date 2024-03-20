@@ -4,15 +4,29 @@ import Hero from '../model/hero';
 
 function GetAllImgs() {
     const [heroes, setHeroes] = useState([] as Hero[]);
-    const imageStart = 95;
-    const numImages = 40;
+    const imageStart = 270;
+    const numImages = 30;
+    // const imageStart = Math.floor(Math.random() * );
+    // const numImages = 40;
     
+    const getRandomArray = (min: number, max: number, len: number) => {
+        let arr = [];
+
+        // for(let i = 0; i < len; i++) {
+        //     const x = Math.random() * max + min
+        // }
+    };
+
     useEffect(() => {
         getHeroes();
     }, []);
 
     const getHeroes = async () => {
+
+
+
         let newHeroes: Hero[] = [];
+        // for(let i = imageStart; i < imageStart + numImages; i++) {
         for(let i = imageStart; i < imageStart + numImages; i++) {
             const url = `https://www.superheroapi.com/api.php/122100753632232992/${i}`;
             
@@ -51,17 +65,24 @@ function GetAllImgs() {
         setHeroes(newHeroes);
     };
 
-  return (
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(8, 1fr)',
-        gap: '0px'
-      }}>
-        {heroes && heroes.map((x: Hero, idx: any) => {
-            return <HeroCard key={x.id} hero={x} />
-        })}
-    </div>
-  )
+    return (
+        <>
+        <p>Here are some heroes from the <a href='https://superheroapi.com/'>SuperHero API</a></p>
+
+        {!heroes || heroes.length == 0 ?
+            <p style={{fontSize: '30px'}}>Loading heroes...</p>
+            :
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(8, 1fr)',
+                gap: '0px'
+            }}>
+                {heroes && heroes.map((x: Hero, idx: any) => {
+                    return <HeroCard key={x.id} hero={x} />
+                })}
+            </div>}
+        </>
+    )
 }
 
 export default GetAllImgs
