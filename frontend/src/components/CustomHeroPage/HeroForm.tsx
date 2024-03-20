@@ -101,8 +101,8 @@ export default function HeroForm() { //default values for hero
                 <br />
                 <label htmlFor="alignment">
                     Alignment:
-                <br />
-                    <input type="text" id="alignment" name="alignment" placeholder="good, bad, or evil" value={formData.alignment} onChange={handleChange}/>
+                    <br />
+                    <input type="text" id="alignment" name="alignment" placeholder="good, bad, or neutral" value={formData.alignment} onChange={handleChange}/>
                 </label>
                 <br />
                 <br />
