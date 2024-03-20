@@ -71,7 +71,7 @@ router.get("/:username", authUserAllowGuest, async (req, res) => {
 
 //modifies an existing user
 // modify any/all user fields, except username, password, id. all fields optional in req.
-router.put("/:username", authUserAllowGuest, async (req, res) => {
+router.put("/:username", authUserOwnerPath, async (req, res) => {
     let data = req.body;
     let username = req.params.username;
 
@@ -79,7 +79,6 @@ router.put("/:username", authUserAllowGuest, async (req, res) => {
     data = {...data, username: username};
 
     //console.log(JSON.stringify(data));
-
     const putResult = await userService.putUser({ username: data.username, userData: data });
     
     res.status(putResult.code).json({ message: putResult.message });
@@ -97,7 +96,7 @@ router.get("/:username/customhero", authUserAllowGuest, async (req, res) => {
 
 // Custom user hero access and customization
 //needs: username param
-router.get("/:username/customization", authUserAllowGuest, async (req, res) => {
+router.get("/:username/customization", authUserOwnerPath, async (req, res) => {
 
     const data = await customHeroService.getCustomHero(req.params.username);
 
@@ -105,10 +104,10 @@ router.get("/:username/customization", authUserAllowGuest, async (req, res) => {
 })
 
 //needs: username param, complete hero{} in body
-router.put("/:username/customization", authUserAllowGuest, async (req, res) => {
+router.put("/:username/customization", authUserOwnerPath, async (req, res) => {
     
-    //console.log(JSON.stringify(req.body.data));
-    let result = await customHeroService.putCustomHero({username: req.params.username, ...req.body.data});
+    //console.log(JSON.stringify(req.body));
+    let result = await customHeroService.putCustomHero({username: req.params.username, ...req.body});
 
     res.status(200).json({ result })
 })

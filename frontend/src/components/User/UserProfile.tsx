@@ -63,15 +63,18 @@ function UserProfile() {
         
         try {
             //console.log(` REGISTER: ${JSON.stringify(data)}`);
-
-            let response = await axios.put(`http://localhost:4000/users/${username}`, { 
+            axios({
+                method: 'put',
+                url: `http://localhost:4000/users/${username}`,
                 headers: {
-                    Authorization: `Bearer ${token}` //puts token in the headers
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    'Authorization': `Bearer ${token}` //puts token in the headers
                 },
-                data 
+                data
+            }).then((response) => {
+                return response;
             });
-
-            return response;
+            return null;
 
         } catch (error) {
             console.error(`ERROR!: ${error}`);
