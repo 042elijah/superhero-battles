@@ -49,6 +49,7 @@ function UserProfile() {
         .then(response => {
             //console.log(`REGISTER RESPONSE: ${JSON.stringify(response)}`);
         });
+        
     };
 
     const handleChange = (event: any) => { //updates formData hook when a form input is changed
@@ -106,7 +107,7 @@ function UserProfile() {
                         <p>
                             User: {user.username}
                         </p>
-                        <p>
+                        <p onChange={handleChange}>
                             Alignment: {user.alignment ? user.alignment : '<not specified>'}
                         </p>
                         { loggedInUser === username ? 
