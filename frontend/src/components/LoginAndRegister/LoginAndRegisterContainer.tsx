@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userActions } from '../Redux/slices/userSlice';
 
 
-const URL = `http://localhost:4000`;
+const URL = `http://3.137.160.227:4000`;
 
 function RegisterContainer() {
     const [actionMessage, setActionMessage] = useState('');

@@ -106,6 +106,24 @@ async function generateJWT(payload) {
     return token;
 }
 
+// async function authUser(req, res, next) {
+//     const authHeader = req.headers['authorization'];
+
+//     // Authentication header format convention: 'Bearer <token>'; This split returns the token value
+//     const token = authHeader && authHeader.split(' ')[1];
+//     jwt.verify(token, SECRET_KEY, (err, user) => {
+//         if (err || !user) {
+//             logger.info('403 Forbidden access');
+//             res.status(403).json({ message: 'Forbidden access' });
+//             return;
+//         }
+//         else {
+//             req.user = user;
+//             next();
+//         }
+//     });
+// }
+
 module.exports = {
     generateJWT, 
     authUser,
@@ -113,5 +131,6 @@ module.exports = {
     authUserOwnerPath,
     authUserOwnerQuery,
     hashPassword,
-    validatePassword
+    validatePassword,
+    authUser
 };
