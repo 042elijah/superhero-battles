@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import { requestedBattleActions } from '../Redux/slices/requestedBattleSlice';
+import HeroForm from '../CustomHeroPage/HeroForm';
 
 function UserProfile() {
 
@@ -163,7 +164,7 @@ function UserProfile() {
 
 function CustomHeroLink({username=""}) {
 
-    let path = `http://localhost:3000/users/${username}/customhero`;
+    let path = `/users/${username}/customhero`;
 
     return (
             // Display inline block allows React Link to not be 100%
@@ -171,6 +172,7 @@ function CustomHeroLink({username=""}) {
             <Link className="nav-link" to={path} style={{display: 'inline-block'}}>
                 <button>See my Custom Hero!</button>
             </Link>
+            // <HeroForm />
     );
 }
 

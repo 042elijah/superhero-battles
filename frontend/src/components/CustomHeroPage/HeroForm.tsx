@@ -161,7 +161,7 @@ function HeroAvatar({id = 0}) {
 
 function UserLink({username=""}) {
 
-    let path = `http://localhost:3000/users/${username}`;
+    let path = `/users/${username}`;
 
     return (
         <Link className="nav-link" to={path} style={{ display: 'inline-block' }}>
