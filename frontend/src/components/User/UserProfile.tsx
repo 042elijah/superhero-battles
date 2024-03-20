@@ -8,6 +8,8 @@ function UserProfile() {
 
     const [user, setUser] = useState(null as any);
     const [userTypeMessage, setUserTypeMessage] = useState('');
+    const [formData, setFormData] = useState({ alignment: "" });
+
     let { username } = useParams();
     // takes the value of the token stored during login. Must add to everything that requires auth
     const token = useSelector((auth: any) => auth.token.value);
@@ -38,6 +40,41 @@ function UserProfile() {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const handleSubmit = (event: any) => { //submits new formData to DAO on pressing of submit button
+
+        event.preventDefault();
+        putUser({ ...formData })
+        .then(response => {
+            //console.log(`REGISTER RESPONSE: ${JSON.stringify(response)}`);
+        });
+    };
+
+    const handleChange = (event: any) => { //updates formData hook when a form input is changed
+
+        const { name, value } = event.target;
+        setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+    };
+
+    async function putUser(data: any) { //put user data into the db
+        
+        try {
+            //console.log(` REGISTER: ${JSON.stringify(data)}`);
+
+            let response = await axios.put(`http://localhost:4000/users/${username}`, { 
+                headers: {
+                    Authorization: `Bearer ${token}` //puts token in the headers
+                },
+                data 
+            });
+
+            return response;
+
+        } catch (error) {
+            console.error(`ERROR!: ${error}`);
+        }
+
     }
 
     const request1v1 = () => {
@@ -72,6 +109,18 @@ function UserProfile() {
                         <p>
                             Alignment: {user.alignment ? user.alignment : '<not specified>'}
                         </p>
+                        { loggedInUser === username ? 
+                            <form onSubmit={handleSubmit}>
+                                <label htmlFor="alignment">
+                                    Set alignment: &emsp;
+                                    <input type="text" id="alignment" name="alignment" placeholder="good, bad, or neutral" value={formData.alignment} onChange={handleChange}/>
+                                </label>
+                                <br />
+                                <button type="submit">Submit</button>
+                            </form>
+                            : <div></div>
+                        }
+                        <br />
                         <p>
                             {`Wins: ${user.wins} Losses: ${user.losses}`}
                         </p>
