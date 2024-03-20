@@ -1,8 +1,7 @@
 import React,{useEffect, useState} from "react";
 import ExploreUsersDetailView from './ExploreUsersDetailView';
 import axios from "axios";
-
-const URL = `http://3.137.160.227:4000`;
+import {URL} from '../../App'
 
 function ExploreUsersContainer() {
     const [users, setUsers] = useState({} as any);

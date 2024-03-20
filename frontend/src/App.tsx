@@ -12,6 +12,7 @@ import NavBar from './components/Navbar/Navbar';
 import Leaderboard from './components/LeaderboardComp/Leaderboard';
 import LeaderboardContainer from './components/LeaderboardComp/LeaderboardContainer';
 
+export const URL = `http://3.137.160.227:4000`;
 
 function App() {
   // Brings up the dialog to confirm refresh (this is convenient to prevent accidental logging out of user)

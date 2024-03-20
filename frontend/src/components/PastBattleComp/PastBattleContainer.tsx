@@ -2,7 +2,7 @@ import React,{useState} from "react";
 import PastBattleDetailView from './PastBattleDetailView';
 import axios from "axios";
 
-const URL = `http://localhost:4000`;
+import { URL } from '../../App'
 
 function PastBattleContainer(props:any) {
     const [record, setRecord] = useState({} as any);

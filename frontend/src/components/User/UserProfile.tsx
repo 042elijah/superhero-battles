@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
 import { requestedBattleActions } from '../Redux/slices/requestedBattleSlice';
+import HeroForm from '../CustomHeroPage/HeroForm';
 
 function UserProfile() {
 
@@ -171,6 +172,7 @@ function CustomHeroLink({username=""}) {
             <Link className="nav-link" to={path} style={{display: 'inline-block'}}>
                 <button>See my Custom Hero!</button>
             </Link>
+            // <HeroForm />
     );
 }
 
