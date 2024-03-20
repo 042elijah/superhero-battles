@@ -71,12 +71,14 @@ router.get("/:username", authUserAllowGuest, async (req, res) => {
 
 //modifies an existing user
 // modify any/all user fields, except username, password, id. all fields optional in req.
-router.put("/:username", authUserOwnerPath, async (req, res) => {
+router.put("/:username", authUserAllowGuest, async (req, res) => {
     let data = req.body;
     let username = req.params.username;
 
     // Disallow changing the username in the body
     data = {...data, username: username};
+
+    //console.log(JSON.stringify(data));
 
     const putResult = await userService.putUser({ username: data.username, userData: data });
     

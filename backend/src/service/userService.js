@@ -26,13 +26,13 @@ async function getAllUsers() {
 async function putUser(data) {
     let { username, userData } = data;
     //userData like { avatar, alignment, following, followers, wins, losses }
-
+    //console.log(JSON.stringify(userData.data));
     //evaluate data validity
-    if(validate.validatePutUserData(userData)) {
+    if(validate.validatePutUserData(userData.data)) {
         // should consider making a putUser in user DAO that will update a user record entirely
-        let result = await userDao.updateInfo({username, ...userData});
+        let result = await userDao.updateInfo({username, ...userData.data});
+        //console.log(result);
         return { code: 200, message: 'User updated', username, success: true, result };
-
     }
     else {
         return { code: 400, message: 'Bad request', result: {}, username, success: false };
