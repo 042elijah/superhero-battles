@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
+import {URL} from '../../App'
 
 
 export default function HeroForm() { //default values for hero
@@ -30,7 +31,7 @@ export default function HeroForm() { //default values for hero
                 return null;
             }
 
-            let response = await axios.get(`http://localhost:4000/users/${username}/customhero`);
+            let response = await axios.get(`${URL}/users/${username}/customhero`);
 
             if ( response && response.data ) //verify we got a response
                 return response.data.data.data; //is this for real? why the hell did i make it like this
@@ -164,7 +165,7 @@ function HeroAvatar({id = 0}) {
 
 function UserLink({username=""}) {
 
-    let path = `http://localhost:3000/users/${username}`;
+    let path = `/users/${username}`;
 
     return (
         <Link className="nav-link" to={path} style={{ display: 'inline-block' }}>
