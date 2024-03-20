@@ -65,7 +65,7 @@ export default function HeroForm() { //default values for hero
             //console.log(` REGISTER: ${JSON.stringify(data)}`);
             axios({
                 method: 'put',
-                url: `http://localhost:4000/users/${username}/customization`,
+                url: `${URL}/users/${username}/customization`,
                 headers: {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Authorization': `Bearer ${token}` //puts token in the headers
