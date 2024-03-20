@@ -220,6 +220,10 @@ async function setUpTeamObj(team) {
             const customHeroResponse = await customHeroService.getCustomHero(team.username);
             const customHero = customHeroResponse && customHeroResponse.data;
 
+            if(!customHero) {
+                return { code: 404, message: `No custom hero found` };
+            }
+
             // CustomHero.stats is the ID of the hero that the custom hero's stats are based on
             const basis = await apiHeroService.getApiHero(customHero.stats);
             

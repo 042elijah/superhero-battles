@@ -87,31 +87,44 @@ export default function HeroForm() { //default values for hero
                 
                 <label htmlFor="avatar">Avatar ID:</label>
                 <input type="number" min="0" max="6" id="avatar" name="avatar" value={formData.avatar} onChange={handleChange}/>
+                <br />
 
-                <UserLink username={username}/>
+                {/* <UserLink username={username}/>
+                <br />
+                <br /> */}
 
                 <label htmlFor="heroName">Name:</label>
+                <br />
                 <input type="text" id="heroName" name="heroName" placeholder="Your hero's name" value={formData.heroName} onChange={handleChange}/>
 
+                <br />
                 <label htmlFor="alignment">
                     Alignment:
+                <br />
                     <input type="text" id="alignment" name="alignment" placeholder="good, bad, or evil" value={formData.alignment} onChange={handleChange}/>
                 </label>
-
+                <br />
+                <br />
                 <label htmlFor="description">Description:</label>
+                <br />
                 <textarea id="description" name="description" placeholder="Description of your hero" value={formData.description} onChange={handleChange}/>
+                <br />
+                <br />
 
                 <label htmlFor="backstory">Backstory:</label>
+                <br />
                 <textarea id="backstory" name="backstory" placeholder="Your hero's backstory" value={formData.backstory} onChange={handleChange}/>
-
+                <br />
+                <br />
                 <label htmlFor="stats">Stats ID:</label>
                 <input type="number" min="1" max="731" id="stats" name="stats" value={formData.stats} onChange={handleChange}/>
-
+                <br />
+                <br />
                 <button type="submit">Submit</button>
             </form>
         );
     }
-    else {
+    else if(formData.heroName) {
         return (
             <div>
                 <h1 id="heroName"> Name: {formData.heroName} </h1>
@@ -124,6 +137,13 @@ export default function HeroForm() { //default values for hero
             </div>
         );
     }
+    else {
+        return (
+            <div>
+                <p>{username} does not have a custom hero yet.</p>
+            </div>
+        );
+    }
 }
 
 
@@ -133,7 +153,7 @@ function HeroAvatar({id = 0}) {
 
     return (
         <div>
-            <img id="heroAvatar" alt="Custom Superhero Avatar" style={{width:"500px", height:"500px"}} src={path} />
+            <img id="heroAvatar" alt="Custom Superhero Avatar" style={{width:"500px", height:"500px", objectFit: 'cover'}} src={path} />
         </div>
     );
 }
@@ -143,8 +163,8 @@ function UserLink({username=""}) {
     let path = `http://localhost:3000/users/${username}`;
 
     return (
-        <Link className="nav-link" to={path}>
-            Created by {username}
+        <Link className="nav-link" to={path} style={{ display: 'inline-block' }}>
+            Created by <u style={{color: '#32a852'}}>{username}</u>
         </Link>
     );
 }

@@ -34,6 +34,17 @@ async function getApiHero(id) {
         return h;
 }
 
+// Valid IDs in API are 1-731 with 166 of the heroes being unusable for this project (missing stats, etc.)
+// ~567 usable heroes in the API
+async function getRandomApiHero() {
+    const min = 1;
+    const max = 731;
+    const id = Math.floor(Math.random() * (max - min) + min);
+
+    return await getApiHero(id);
+}
+
 module.exports = {
-    getApiHero
+    getApiHero,
+    getRandomApiHero
 };
