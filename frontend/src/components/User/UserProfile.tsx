@@ -163,7 +163,7 @@ function UserProfile() {
 
 function CustomHeroLink({username=""}) {
 
-    let path = `http://localhost:3000/users/${username}/customhero`;
+    let path = `/users/${username}/customhero`;
 
     return (
             // Display inline block allows React Link to not be 100%
