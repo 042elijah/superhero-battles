@@ -181,8 +181,8 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
         challengerWinsLosses.losses++;
     }
 
-    userService.putUser({ username: challenger, userData: { data: { ...challengerWinsLosses } } });
-    userService.putUser({ username: opponent, userData: { data: { ...opponentWinsLosses } } });
+    await userService.putUser({ username: challenger, userData: { ...challengerWinsLosses } });
+    await userService.putUser({ username: opponent, userData: { ...opponentWinsLosses } });
 
     // const aaaa = { username: data.username, userData: { data: { ...challengerWinsLosses } } }
 
