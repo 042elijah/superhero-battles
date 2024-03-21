@@ -1,0 +1,20 @@
+.Users {
+    background-color: lightblue;
+    color: #000;
+        border: 1px solid gray;
+        padding: 0.3rem 1.4rem;
+        align-items: center;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin: 5px;
+        text-decoration: none;
+}
+
+.Users:hover {
+    background-color: rgb(80, 120, 160);
+    align-items: center;
+    transform: scale(0.97);
+    transition: all 10ms ease-in;
+}
+
