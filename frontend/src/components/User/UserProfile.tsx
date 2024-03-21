@@ -120,7 +120,12 @@ function UserProfile() {
                             <form onSubmit={handleSubmit}>
                                 <label htmlFor="alignment">
                                     Set alignment: &emsp;
-                                    <input type="text" id="alignment" name="alignment" placeholder="good, bad, or neutral" value={formData.alignment} onChange={handleChange}/>
+                                    <select id="alignment" name="alignment"  value={formData.alignment} onChange={handleChange}> 
+                                        <option value=""></option>
+                                        <option value="good">Good</option>
+                                        <option value="bad">Bad</option>
+                                        <option value="neutral">Neutral</option>
+                                    </select>
                                 </label>
                                 <br />
                                 <button type="submit">Submit</button>
