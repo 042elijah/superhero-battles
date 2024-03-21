@@ -41,12 +41,22 @@ async function registerUser(data) {
     else if (dataCheck.username == false) return [401, "Invalid userame. Must be less than 50 characters with no spaces"]
 
     else {
+        // If the data does not contain an alignment (which it most likely won't when first registering,
+        // just add neutral alignment so that the database has a value instead of empty)
+        if(data.alignment) {
+            data.alignment = String(data.alignment).toLowerCase();
+
+            if(!['good', 'bad', 'neutral'].includes(data.alignment)) {
+                data.alignment = 'neutral';
+            }
+        }
+
         let userObj = {
             username: username,
             id: "user",
             avatar: null,
             password: `${await hashPassword(password)}`,
-            alignment: null,
+            alignment: data.alignment,
             followers: 0,
             following: 0,
             wins: 0,

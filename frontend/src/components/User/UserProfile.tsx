@@ -5,6 +5,7 @@ import { useParams, Link } from 'react-router-dom';
 import { requestedBattleActions } from '../Redux/slices/requestedBattleSlice';
 import HeroForm from '../CustomHeroPage/HeroForm';
 import { URL } from '../../App';
+import FollowButton from '../FollowButton/FollowButton';
 
 function UserProfile() {
 
@@ -97,9 +98,9 @@ function UserProfile() {
         dispatch(requestedBattleActions.setRequestedBattle({
             challenger: loggedInUser,
             // -1 denotes custom hero
-            challengerTeam: [-1, 5, 8], 
+            challengerTeam: [-1, 0, 0], 
             opponent: username,
-            opponentTeam: [-1, 11, 14]
+            opponentTeam: [-1, 0, 0]
         }));
     };
 
@@ -133,6 +134,8 @@ function UserProfile() {
                         <p>
                             {`Followers: ${user.followers} Following: ${user.following}`}
                         </p>
+                        {/* <FollowButton></FollowButton> */}
+                        <br />
                         <div>
                             <CustomHeroLink username={username}/>
 
@@ -142,14 +145,16 @@ function UserProfile() {
                             {loggedInUser ? 
                             (
                                 <>
-                                    <Link className="nav-link" to={'/battle'} onClick={request1v1} style={{ display: 'inline-block' }}>
+                                    <Link className="nav-link" to={'/battle'} onClick={request1v1} style={{ display: 'inline-block' }}
+                                    title='Battle using your custom hero versus theirs'>
                                         <button>1v1 me</button>
                                     </Link>
 
                                     <br />
                                     <br />
 
-                                    <Link className="nav-link" to={'/battle'} onClick={request3v3} style={{ display: 'inline-block' }}>
+                                    <Link className="nav-link" to={'/battle'} onClick={request3v3} style={{ display: 'inline-block' }}
+                                    title='Battle using your custom hero and two random allies'>
                                         <button>3v3 me</button>
                                     </Link>
                                 </>
@@ -160,7 +165,10 @@ function UserProfile() {
                             }
                         </div>
                     </>
-                    : <></>
+                    : 
+                    <Link className="nav-link" to={'/'} style={{ display: 'inline-block' }}>
+                        <button>Log in to view user accounts</button>
+                    </Link>
             }
         </div>
     )

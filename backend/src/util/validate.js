@@ -8,7 +8,7 @@ function validateNumArray(arr) {
     }
     
     for(var x of arr) {
-        if(!Number(x)) {
+        if(!Number(x) && Number(x) !== 0) {
             return false;
         }
     }

@@ -1,6 +1,6 @@
 :root {
   --card-scale: 1;
-  --battle-view-scale: 0.85;
+  --battle-view-scale: 0.8;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -155,4 +155,21 @@
   font-weight: bold;
   color: white;
   margin-bottom: 0;
+}
+
+/* W3Schools */
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
 }

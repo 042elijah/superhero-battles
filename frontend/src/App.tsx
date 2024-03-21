@@ -45,11 +45,11 @@ function App() {
     /*{
       path: "/users",
       buttonName: "Users",
-    },
+    },*/
     {
       path: "/leaderboard",
       buttonName: "Leaderboard",
-    },*/
+    },
   ];
 
   return (
