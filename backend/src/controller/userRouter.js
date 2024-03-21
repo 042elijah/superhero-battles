@@ -75,11 +75,8 @@ router.put("/:username", authUserOwnerPath, async (req, res) => {
     let data = req.body;
     let username = req.params.username;
 
-    // Disallow changing the username in the body
-    data = {...data, username: username};
-
     //console.log(JSON.stringify(data));
-    const putResult = await userService.putUser({ username: data.username, userData: data });
+    const putResult = await userService.putUser({ username, userData: data });
     
     res.status(putResult.code).json({ message: putResult.message });
 })
