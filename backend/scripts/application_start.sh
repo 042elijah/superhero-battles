@@ -5,4 +5,5 @@ export /home/ubuntu/.aws
 source /home/ubuntu/.bashrc
 cd /home/ubuntu/MyExpressApp/src
 chmod +x ./scripts/*
+killall node
 node app.js > /dev/null 2>&1 &
