@@ -32,7 +32,7 @@ function GetAllImgs() {
 
     const getHeroes = async () => {
 
-        const randomIds = getRandomArray(0, 567, 20);
+        const randomIds = getRandomArray(0, 567, 30);
 
         let newHeroes: Hero[] = [];
         // for(let i = imageStart; i < imageStart + numImages; i++) {
@@ -82,8 +82,8 @@ function GetAllImgs() {
             <p style={{fontSize: '30px'}}>Loading heroes...</p>
             :
             <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(8, 1fr)',
+                display: 'flex',
+                flexWrap: 'wrap',
                 gap: '0px'
             }}>
                 {heroes && heroes.map((x: Hero, idx: any) => {
