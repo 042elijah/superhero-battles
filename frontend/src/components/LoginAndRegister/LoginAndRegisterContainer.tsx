@@ -10,6 +10,7 @@ const URL = `http://3.137.160.227:4000`;
 function RegisterContainer() {
     const [actionMessage, setActionMessage] = useState('');
     let dispatcher = useDispatch();
+    const username = useSelector((state: any) => state.token.username);
 
     async function registerUser(username: any, password: any) {
         try {

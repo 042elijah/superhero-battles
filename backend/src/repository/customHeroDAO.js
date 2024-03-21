@@ -38,7 +38,7 @@ async function getCustomHero (username) {
         return hero;
 
     } catch (error) {
-        console.error(error);
+        console.error(error.message);
         return null;
     }
 }

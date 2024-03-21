@@ -209,7 +209,7 @@ function HeroCard(props: any) {
             onAnimationEnd={onAnimationEndEvent}
         >
             {/* Hero image */}
-            <img className='hero-card-image prevent-select' draggable='false' key={`image_${props.hero.id}`} src={props.hero.image.url}
+            <img className='hero-card-image prevent-select' draggable='false' key={`image_${props.hero.id}`} src={props.hero.id < 0 ? require(`../img/hero-avatars/hero_${props.hero.image.url}.png`) : props.hero.image.url}
             style={{borderColor: `${alignmentColor()}`, outlineColor: `${tierColor()}`}}/>
             
             {/* Card frame */}

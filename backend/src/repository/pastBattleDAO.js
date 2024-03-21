@@ -74,7 +74,7 @@ async function getLeaderBoard() {
         ExpressionAttributeValues: { ":value": 'user' },
         Limit : 10,
         ScanIndexForward : false,
-        ProjectionExpression : "username, alignment, wins",
+        ProjectionExpression : "username, alignment, wins, losses",
     })
     try {
         const data = await documentClient.send(command);

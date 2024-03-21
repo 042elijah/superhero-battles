@@ -6,11 +6,12 @@ import { URL } from '../../App'
 
 
 function LeaderboardContainer() {
-
     const[leaderboard, setLeaderboard] = useState({} as any);
 
     useEffect(() =>{
-        setLeaderboard(getLeaderboard());
+        // setLeaderboard(getLeaderboard());
+        getLeaderboard()
+        .then(x => {setLeaderboard((x as any).data)})
     }, [])
 
 
@@ -22,7 +23,7 @@ function LeaderboardContainer() {
             console.log(error);
         }
     }
-  
+
     return (
         <>
             <Leaderboard leaderboard = {leaderboard} />
