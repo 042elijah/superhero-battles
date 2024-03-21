@@ -28,5 +28,5 @@ app.use(["/register", "/login"], accountRouter)
 
 
 app.listen(PORT, () => {
-    console.log(`Server is listening on http://localhost:${PORT}`);
+    console.log(`Server is listening on http://3.137.160.227:${PORT}`);
 });

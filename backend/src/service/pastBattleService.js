@@ -60,8 +60,39 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
         return { code: 400, message: 'Malformed team array' };
     }
 
-    if(!userService.getUser(challenger) || !userService.getUser(opponent)) {
+    let challengerUser, opponentUser;
+
+    try {
+        challengerUser = await userService.getUser(challenger);
+        challengerUser = challengerUser.Items[0];
+
+        opponentUser = await userService.getUser(opponent);
+        opponentUser = opponentUser.Items[0];
+    } catch (error) {
+        console.error(error.message);
+    }
+
+    if(!(challengerUser && challengerUser.username) || !(opponentUser && opponentUser.username)) {
         return { code: 404, message: 'User not found' };
+    }
+
+    // Pass in 0 in the request to get a random hero (0 is not a taken hero id in the api anyways so it is safe)
+    // Pass in -1 to use the user's custom hero (handled later)
+    const neededRandomHeroes = [...challengerTeam, ...opponentTeam].reduce((sum, x) => x == 0 ? sum + 1 : sum, 0);
+    
+    const randomHeroes = await apiHeroService.getUniqueRandomHeroTeam(neededRandomHeroes);
+
+    let j = 0;
+    for(let k = 0; k < challengerTeam.length; k++) {
+        if(challengerTeam[k] == 0) {
+            challengerTeam[k] = randomHeroes[j++];
+        }
+    }
+    
+    for(let k = 0; k < opponentTeam.length; k++) {
+        if(opponentTeam[k] == 0) {
+            opponentTeam[k] = randomHeroes[j++];
+        }
     }
 
     let invalidHeroes = await getInvalidHeroes([...challengerTeam, ...opponentTeam]);
@@ -110,6 +141,8 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
         steps: []
     };
     
+    let winner;
+
     setTeamStatBonuses(battle, team1, team2);
 
     
@@ -131,7 +164,27 @@ async function simulateBattle({ challenger, challengerTeam }, { opponent, oppone
         i++;
     }
 
+    winner = i % 2 == 0 ? opponent : challenger;
+
     console.log('Store battle result (only usernames and battle result, not steps) here');
+
+    // Increase user's wins and losses
+    const challengerWinsLosses = { wins: challengerUser.wins, losses: challengerUser.losses };
+    const opponentWinsLosses = { wins: opponentUser.wins, losses: opponentUser.losses };
+
+    if(winner == challenger) {
+        challengerWinsLosses.wins++;
+        opponentWinsLosses.losses++;
+    }
+    else {
+        opponentWinsLosses.wins++;
+        challengerWinsLosses.losses++;
+    }
+
+    userService.putUser({ username: challenger, userData: { data: { ...challengerWinsLosses } } });
+    userService.putUser({ username: opponent, userData: { data: { ...opponentWinsLosses } } });
+
+    // const aaaa = { username: data.username, userData: { data: { ...challengerWinsLosses } } }
 
     return battle;
 }
@@ -239,7 +292,7 @@ async function setUpTeamObj(team) {
                 id: -1, //customHero.id,
                 name: customHero.heroName,
                 image: {
-                    url: basis.image.url
+                    url: customHero.avatar ?? 0 // Don't use || or else if their avatar is 0, it will count as falsy and not use their avatar
                 },
                 powerstats: {
                     intelligence: Number(basis.powerstats.intelligence),
@@ -428,14 +481,22 @@ function calculateBattleStep(activeTeam, otherTeam) {
         // If hero is alive, damage it
         // if(hero.powerstats.durability > 0) {
         if(hero.powerstats.currentHealth > 0) {
-            // newStats.durability = Math.round(newStats.durability - damage);
-            newStats.currentHealth = Math.round(newStats.currentHealth - damage);
+            // Somewhat like an easter egg
+            if(!(hero.id == 503 && hero.name == 'One-Above-All')) {
+                // newStats.durability = Math.round(newStats.durability - damage);
+                newStats.currentHealth = Math.round(newStats.currentHealth - damage);
+            }
             
-            // battleStep.teamRemarks.push(`${hero.name}: takes ${Math.round(damage)} damage`);
+            if(!(hero.id == 503 && hero.name == 'One-Above-All')) {
+                // battleStep.teamRemarks.push(`${hero.name}: takes ${Math.round(damage)} damage`);
             // battleStep.teamRemarks.push({ heroIndex: i, remark: `${hero.name}: takes ${Math.round(damage)} damage` });
 
             // Shorter remark; since the remarks are shown above the hero they correspond to, the name is not needed
-            battleStep.teamRemarks.push({ heroIndex: i, remark: `${Math.round(damage)} damage` });
+                battleStep.teamRemarks.push({ heroIndex: i, remark: `${Math.round(damage)} damage` });
+            }
+            else {
+                battleStep.teamRemarks.push({ heroIndex: i, remark: `The One Above All takes no damage` });
+            }
 
             // if(newStats.durability <= 0) {
             if(newStats.currentHealth <= 0) {

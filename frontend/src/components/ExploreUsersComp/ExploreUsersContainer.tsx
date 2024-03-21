@@ -12,8 +12,9 @@ function ExploreUsersContainer() {
         let data: any;
         getAllUsers()
         // .then(x => x && x.data && x.data.users ? x.data.users : null)
+        .then(x => x?.sort((a, b) => a.username.localeCompare(b.username)))
         .then(x => { x ? setUsers(x) : setUsers({} as any); return x; })
-        .then(console.log);
+        // .then(console.log);
     }, []);
 
     async function getAllUsers() {

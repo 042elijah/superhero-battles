@@ -30,7 +30,25 @@ async function getRandomApiHero() {
     return h;
 }
 
+async function getUniqueRandomHeroTeam(count) {
+    let team = [];
+
+    for(let i = 0; i < count; i++) {
+        const hero = await getRandomApiHero();
+
+        if(hero.id && team.includes(hero.id)) {
+            i--;
+            continue;
+        }
+
+        team.push(hero.id);
+    }
+
+    return team;
+}
+
 module.exports = {
     getApiHero,
-    getRandomApiHero
+    getRandomApiHero,
+    getUniqueRandomHeroTeam
 };
