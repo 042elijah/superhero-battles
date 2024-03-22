@@ -43,6 +43,6 @@ cd backend ; node src/app.js
 ```
 
 The frontend can be started with
-```
+```bash
 cd frontend ; npm start
 ```
